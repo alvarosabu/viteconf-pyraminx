@@ -15,10 +15,7 @@ const state = reactive({
 </script>
 
 <template>
-  <div class="relative w-full h-full">
-    <!--     <ControlsModal /> -->
-    <TresCanvas v-bind="state">
-      <TheExperience />
-    </TresCanvas>
-  </div>
+  <TresCanvas v-bind="state" window-size>
+    <TheExperience />
+  </TresCanvas>
 </template>

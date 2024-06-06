@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { computed, onMounted, ref, watch } from 'vue'
+import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
+import { useLoop, useTres } from '@tresjs/core'
 import { useGLTF } from '@tresjs/cientos'
-import { computed, onMounted, ref, watch, watchEffect } from 'vue'
-import { Box3, BoxHelper, Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
-import { useTres } from '@tresjs/core'
-import { set } from '@vueuse/core'
+import { useThrottleFn } from '@vueuse/core'
+import { useAnimate } from '../composable/useAnimate'
 import Tetrahedron from './Tetrahedron.vue'
 import Octahedron from './Octahedron.vue'
 
@@ -43,72 +44,72 @@ const tetrahedronsRef = ref(null)
 const tetrahedrons = ref([
   // Top
   {
-    initialPosition: [0, -10, 0],
-    finalPosition: [1, 0.814 * 2, -0.58],
+
+    position: [1, 0.814 * 2, -0.58],
     data: {
       groups: ['top'],
     },
   },
   {
-    initialPosition: [0, -10, 0],
-    finalPosition: [0.5, 0.814, -0.29],
+
+    position: [0.5, 0.814, -0.29],
     data: {
       groups: ['middle'],
     },
   },
   {
-    initialPosition: [0, -10, 0],
-    finalPosition: [1.5, 0.814, -0.29],
+
+    position: [1.5, 0.814, -0.29],
     data: {
       groups: ['middle'],
     },
   },
   {
-    initialPosition: [0, -10, 0],
-    finalPosition: [1, 0.814, -1.16],
+
+    position: [1, 0.814, -1.16],
     data: {
       groups: ['middle'],
     },
   },
   // Base
   {
-    initialPosition: [0, -10, 0],
-    finalPosition: [0, 0, 0],
+
+    position: [0, 0, 0],
     data: {
       groups: ['base'],
     },
   },
   {
-    initialPosition: [0, -10, 0],
-    finalPosition: [1, 0, 0],
+
+    position: [1, 0, 0],
     data: {
       groups: ['base'],
     },
   },
   {
-    initialPosition: [0, -10, 0],
-    finalPosition: [2, 0, 0],
+
+    position: [2, 0, 0],
     data: {
       groups: ['base'],
     },
   },
   {
-    initialPosition: [0, -10, 0],
-    finalPosition: [0.5, 0, -0.871],
+
+    position: [0.5, 0, -0.871],
     data: {
       groups: ['base'],
     },
   },
   {
-    initialPosition: [0, -10, 0],
-    finalPosition: [1.5, 0, -0.871],
+
+    position: [1.5, 0, -0.871],
     data: {
       groups: ['base'],
     },
   },
   {
-    initialPosition: [0, -10, 0],
-    finalPosition: [1, 0, -0.871 * 2],
+
+    position: [1, 0, -0.871 * 2],
     data: {
       groups: ['base'],
     },
@@ -118,23 +119,32 @@ const tetrahedrons = ref([
 const octahedronsRef = ref(null)
 const octahedrons = ref([
   {
-    initialPosition: [0, -10, 0],
-    finalPosition: [0.5, 0, -0.29],
-    groups: ['base'],
+
+    position: [0.5, 0, -0.29],
+    data: {
+      groups: ['base'],
+    },
   },
   {
-    initialPosition: [0, -10, 0],
-    finalPosition: [1.5, 0, -0.29],
-    groups: ['base'],
+
+    position: [1.5, 0, -0.29],
+    data: {
+      groups: ['base'],
+    },
   },
   {
-    initialPosition: [0, -10, 0],
-    finalPosition: [1, 0, -1.16],
-    groups: ['base'],
+
+    position: [1, 0, -1.16],
+    data: {
+      groups: ['base'],
+    },
   },
   {
-    initialPosition: [0, -10, 0],
-    finalPosition: [1, 0.814, -0.58],
+
+    position: [1, 0.814, -0.58],
+    data: {
+      groups: ['middle'],
+    },
   },
 ])
 const centroid = ref(null)
@@ -167,7 +177,7 @@ onMounted(() => {
   completedAnimations.value = 0 // Reset on component mount
 })
 
-function calculateCentroid(group) {
+/* function calculateCentroid(group) {
   const centroid = new Vector3()
   let totalVertices = 0
 
@@ -191,6 +201,23 @@ function calculateCentroid(group) {
   }
 
   return centroid
+} */
+
+const calculateCentroid = (objects) => {
+  const centroid = new Vector3()
+  objects.forEach((obj) => {
+    centroid.add(obj.position)
+  })
+  centroid.divideScalar(objects.length)
+  return centroid
+}
+
+const rotateAroundPoint = (obj, point, axis, theta) => {
+  obj.position.sub(point) // remove the offset
+  obj.position.applyAxisAngle(axis, theta) // rotate the position
+  obj.position.add(point) // re-add the offset
+
+  obj.rotateOnAxis(axis, theta) // rotate the object
 }
 
 watch(isAnimationComplete, (value) => {
@@ -203,10 +230,73 @@ watch(isAnimationComplete, (value) => {
     scene.value.add(centroidMesh)
   }
 })
+
+const { animateTo, animate } = useAnimate()
+const rotateSection = (objects, axis, angle, duration = 1, easing = 'linear') => {
+  const centroid = calculateCentroid(objects)
+
+  objects.forEach((obj) => {
+    const startPosition = obj.position.clone()
+    const startRotation = obj.rotation.clone()
+
+    // Calculate the end position after rotation around the centroid
+    const endPosition = startPosition.clone().sub(centroid).applyAxisAngle(axis, angle).add(centroid)
+
+    // Animate position
+    animate(
+      obj.position,
+      { x: startPosition.x, y: startPosition.y, z: startPosition.z },
+      { x: endPosition.x, y: endPosition.y, z: endPosition.z },
+      { duration, easing },
+    )
+
+    // Animate rotation
+    animate(
+      obj.rotation,
+      { y: startRotation.y },
+      { y: startRotation.y + angle },
+      { duration, easing },
+    )
+  })
+}
+
+const log = useThrottleFn(value => console.log('Pyraminx', value), 3000)
+
+const { onBeforeRender } = useLoop()
+
+const topTetrahedron = computed(() => pyraminxRef.value.children.find(child => child.userData.groups.includes('top')))
+const topMiddleSection = computed(() => pyraminxRef.value.children.filter(child => child.userData.groups.includes('middle') || child.userData.groups.includes('top')))
+
+/* onBeforeRender(({ delta }) => {
+  if (topMiddleSection.value) {
+    log(topMiddleSection.value)
+  }
+}) */
+
+function animateTop() {
+  if (topTetrahedron.value) {
+    animateTo(
+      topTetrahedron.value.rotation,
+      { y: `+=${2 * Math.PI / 3}` },
+      { duration: 1, easing: 'ease-in' },
+    )
+  }
+}
+
+function animateTopMiddleSection() {
+  if (topMiddleSection.value) {
+    rotateSection(topMiddleSection.value, new Vector3(0, 1, 0), 2 * Math.PI / 3)
+  }
+}
 </script>
 
 <template>
-  <TresGroup ref="pyraminxRef" :position="[-1.186, 1, -0.814]" :rotation="[-Math.PI, 0, 0]">
+  <TresGroup
+    ref="pyraminxRef"
+    :position="[-1.186, 1, -0.814]"
+    :rotation="[-Math.PI, 0, 0]"
+    @click="animateTopMiddleSection"
+  >
     <Tetrahedron
       v-for="(tetrahedron, index) in tetrahedrons"
       ref="tetrahedronsRef"
@@ -214,10 +304,8 @@ watch(isAnimationComplete, (value) => {
       :index="index"
       :name="`tetrahedron-${index}`"
       :user-data="tetrahedron.data"
-      :initial-position="tetrahedron.initialPosition"
-      :final-position="tetrahedron.finalPosition"
+      :position="tetrahedron.position"
       :model="tetrahedronNodes.Tetrahedron"
-      @animation-complete="onAnimationComplete"
     />
     <Octahedron
       v-for="(octahedron, index) in octahedrons"
@@ -225,8 +313,8 @@ watch(isAnimationComplete, (value) => {
       :key="index"
       :index="index"
       :name="`octahedron-${index}`"
-      :initial-position="octahedron.initialPosition"
-      :final-position="octahedron.finalPosition"
+      :user-data="octahedron.data"
+      :position="octahedron.position"
       :model="octahedronNodes.Octahedron"
     />
   </TresGroup>
