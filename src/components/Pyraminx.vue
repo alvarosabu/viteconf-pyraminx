@@ -8,8 +8,8 @@ import { useAnimate } from '../composable/useAnimate'
 import Tetrahedron from './Tetrahedron.vue'
 import Octahedron from './Octahedron.vue'
 
-const { nodes: tetrahedronNodes, materials: tetrahedronMaterials } = await useGLTF('/tetrahedron.glb', { draco: true })
-const { nodes: octahedronNodes, materials: octahedronMaterials } = await useGLTF('/octahedron.glb', { draco: true })
+const { nodes: tetrahedronNodes, materials: tetrahedronMaterials } = await useGLTF('/tetrahedron.gltf', { draco: true })
+const { nodes: octahedronNodes, materials: octahedronMaterials } = await useGLTF('/octahedron.gltf', { draco: true })
 
 Object.values(tetrahedronMaterials).forEach((material) => {
 /*   material.opacity = 0.5
