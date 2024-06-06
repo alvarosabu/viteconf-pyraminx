@@ -6,8 +6,8 @@ import TheExperience from './components/TheExperience.vue'
 import ControlsModal from './components/ControlsModal.vue'
 
 const state = reactive({
-  clearColor: '#1a1e25',
   alpha: true,
+  transparent: true,
   shadowMapType: BasicShadowMap,
   outputColorSpace: SRGBColorSpace,
   toneMapping: NoToneMapping,
