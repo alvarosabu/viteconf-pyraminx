@@ -1,4 +1,5 @@
 // src/composables/useAnimate.js
+import { Quaternion } from 'three'
 import { ref } from 'vue'
 
 export const easeFunctions = {
@@ -58,6 +59,27 @@ export function useAnimate() {
     requestRef.value = requestAnimationFrame(step)
   }
 
+  const animateQuaternion = (object, startQuaternion, endQuaternion, { duration = 1, easing = 'linear' } = {}) => {
+    const easingFunction = easeFunctions[easing] || easeFunctions.linear
+    const startTime = performance.now()
+    const currentQuaternion = startQuaternion.clone() // Clone to avoid mutating the startQuaternion
+
+    const step = (currentTime) => {
+      const elapsed = currentTime - startTime
+      const progress = Math.min(elapsed / (duration * 1000), 1)
+      const easedProgress = easingFunction(progress)
+
+      // Use the slerp method on the currentQuaternion to interpolate towards endQuaternion
+      object.quaternion.copy(currentQuaternion).slerp(endQuaternion, easedProgress)
+
+      if (progress < 1) {
+        requestAnimationFrame(step)
+      }
+    }
+
+    requestAnimationFrame(step)
+  }
+
   const animateTo = (target, to, options) => {
     const from = {}
     Object.keys(to).forEach((key) => {
@@ -66,5 +88,5 @@ export function useAnimate() {
     animate(target, from, to, options)
   }
 
-  return { animate, animateTo }
+  return { animate, animateTo, animateQuaternion }
 }
