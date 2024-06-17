@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { OrbitControls } from '@tresjs/cientos'
 import { Bloom, EffectComposer } from '@tresjs/post-processing'
-import { reactive, ref } from 'vue'
+import { reactive } from 'vue'
 import { BlendFunction, KernelSize } from 'postprocessing'
 import Pyraminx from './Pyraminx.vue'
 
@@ -17,7 +17,7 @@ const bloomParams = reactive({
 </script>
 
 <template>
-  <TresPerspectiveCamera :position="[-2, 3, 8]" />
+  <TresPerspectiveCamera :position="[-4, -1, 4]" :up="[0, -1, 0]" />
   <OrbitControls />
 
   <TresAmbientLight

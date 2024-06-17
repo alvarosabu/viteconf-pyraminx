@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { ArrowHelper, Color, Matrix4, Mesh, MeshBasicMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { computed, ref, toRaw, watch } from 'vue'
+import { Group, Matrix4, Quaternion, Vector3 } from 'three'
 import { useTres } from '@tresjs/core'
 import { useGLTF } from '@tresjs/cientos'
 import { useMagicKeys } from '@vueuse/core'
 import Tetrahedron from './Tetrahedron.vue'
 import Octahedron from './Octahedron.vue'
 
-const { nodes: tetrahedronNodes, materials: tetrahedronMaterials } = await useGLTF('/hybrid-tetrahedron.glb', { draco: true })
+const { nodes: tetrahedronNodes, materials: tetrahedronMaterials } = await useGLTF('/tetrahedron.gltf', { draco: true })
 const { nodes: octahedronNodes, materials: octahedronMaterials } = await useGLTF('/octahedron.gltf', { draco: true })
-console.log('Tetrahedron nodes:', tetrahedronNodes)
+
 Object.values(tetrahedronMaterials).forEach((material) => {
   material.opacity = 1
   material.transparent = true
@@ -17,7 +17,6 @@ Object.values(tetrahedronMaterials).forEach((material) => {
     material.emissiveIntensity = 3
   }
   else if (material.name === 'NeonPurple') {
-    material.emissive = new Color('blue')
     material.emissiveIntensity = 6
   }
   else {
@@ -32,7 +31,6 @@ Object.values(octahedronMaterials).forEach((material) => {
     material.emissiveIntensity = 3
   }
   else if (material.name === 'NeonPurple') {
-    material.emissive = new Color('blue')
     material.emissiveIntensity = 6
   }
   else {
@@ -42,7 +40,6 @@ Object.values(octahedronMaterials).forEach((material) => {
 
 const pyraminxRef = ref(null)
 const tetrahedronsRef = ref(null)
-// Following the logic of https://ruwix.com/online-puzzle-simulators/pyraminx-simulator.php
 const EDGE_LENGTH = 1
 const DEEP = Math.sqrt(3) / 2
 const HEIGHT = Math.sqrt(2 / 3) * EDGE_LENGTH
@@ -122,111 +119,39 @@ const tetrahedrons = ref([
     },
   },
 ])
-/* const tetrahedrons = ref([
-  // Top
-  {
 
-    position: [1, 0.814 * 2, -0.58],
-    data: {
-      groups: ['u', 'U'],
-    },
-  },
-  {
-
-    position: [0.5, 0.814, -0.29],
-    data: {
-      groups: ['U', 'L'],
-    },
-  },
-  {
-
-    position: [1.5, 0.814, -0.29],
-    data: {
-      groups: ['U', 'R'],
-    },
-  },
-  {
-
-    position: [1, 0.814, -1.16],
-    data: {
-      groups: ['U', 'B'],
-    },
-  },
-  // Base
-  {
-
-    position: [0, 0, 0],
-    data: {
-      groups: ['l', 'L'],
-    },
-  },
-  {
-
-    position: [1, 0, 0],
-    data: {
-      groups: ['L', 'R'],
-    },
-  },
-  {
-
-    position: [2, 0, 0],
-    data: {
-      groups: ['r', 'R'],
-    },
-  },
-  {
-
-    position: [0.5, 0, -0.866001],
-    data: {
-      groups: ['L', 'B'],
-    },
-  },
-  {
-
-    position: [1.5, 0, -0.866001],
-    data: {
-      groups: ['R', 'B'],
-    },
-  },
-  {
-    position: [1, 0, -0.866001 * 2],
-    data: {
-      groups: ['b', 'B'],
-    },
-  },
-
-]) */
 const octahedronsRef = ref(null)
 const octahedrons = ref([
-  /* {
-
-    position: [0.5, 0, -0.29],
+  {
+    position: [0, 0, 0],
     data: {
+      originalGroups: ['L'],
       groups: ['L'],
     },
   },
   {
-
-    position: [1.5, 0, -0.29],
+    position: [EDGE_LENGTH, 0, 0],
     data: {
+      originalGroups: ['R'],
       groups: ['R'],
     },
   },
   {
-
-    position: [1, 0, -1.16],
+    position: [EDGE_LENGTH / 2, 0, -DEEP],
     data: {
+      originalGroups: ['B'],
       groups: ['B'],
     },
   },
   {
-
-    position: [1, 0.814, -0.58],
+    position: [EDGE_LENGTH / 2, HEIGHT, -0.2887],
     data: {
+      originalGroups: ['U'],
       groups: ['U'],
     },
-  }, */
+  },
 ])
+
 const currentCentroid = ref([0, 0, 0])
 
 const { scene } = useTres()
@@ -287,7 +212,7 @@ const groupUpdates = {
 }
 
 function updateGroups(groups, section, clockwise) {
-  const updates = groupUpdates[section][clockwise ? 'clockwise' : 'counterclockwise']
+  const updates = groupUpdates[section.toUpperCase()][clockwise ? 'clockwise' : 'counterclockwise']
   return groups.map(group => updates[group] || group)
 }
 
@@ -297,17 +222,15 @@ function calculateCentroid(meshes) {
 
   meshes.forEach((mesh) => {
     const geometry = mesh.geometry || mesh.children[0].geometry
-    // Ensure the mesh geometry has been updated (useful if there are transformations)
     geometry.computeBoundingBox()
     geometry.computeBoundingSphere()
 
-    // Get the vertices from the geometry
     const positionAttribute = geometry.attributes.position
     const vertex = new Vector3()
 
     for (let i = 0; i < positionAttribute.count; i++) {
       vertex.fromBufferAttribute(positionAttribute, i)
-      vertex.applyMatrix4(mesh.matrixWorld) // Transform to world coordinates
+      vertex.applyMatrix4(mesh.matrixWorld)
 
       sumX += vertex.x
       sumY += vertex.y
@@ -317,63 +240,32 @@ function calculateCentroid(meshes) {
     totalVertices += positionAttribute.count
   })
 
-  console.log('Total vertices:', totalVertices)
-
-  if (totalVertices === 0) { return null } // No vertices found
+  if (totalVertices === 0) { return null }
 
   const centroid = new Vector3(sumX / totalVertices, sumY / totalVertices, sumZ / totalVertices)
 
-  if (currentCentroid.value) {
-    currentCentroid.value.x = centroid.x
-    currentCentroid.value.y = centroid.y
-    currentCentroid.value.z = centroid.z
-  }
+  currentCentroid.value = [centroid.x, centroid.y, centroid.z]
+
   return centroid
 }
 
-let lastSection = null
-
 const isRotating = ref(false)
+
 function rotateSectionAnimate(objects, axis, angle, duration = 1000, section) {
   isRotating.value = true
   const centroid = calculateCentroid(objects)
-  console.log('Centroid:', centroid)
 
-  // Normalize the rotation axis and create the quaternion for the specified rotation
   axis.normalize()
   const incrementalQuaternion = new Quaternion().setFromAxisAngle(axis, angle)
 
-  // Visualize the rotation axis
-  const arrowHelper = new ArrowHelper(axis, centroid, 2, 0xFF0000)
-  scene.value.add(arrowHelper)
+  const temporaryGroup = new Group()
+  temporaryGroup.position.copy(centroid)
+  scene.value.add(temporaryGroup)
 
-  if (lastSection && lastSection !== section) {
-    const objectsToBeReset = objects.filter(object => object.userData.groups.includes(section))
-    console.log('Section changed', {
-      change: `${lastSection} -> ${section}`,
-      objectsToBeReset,
-    })
-    if (objectsToBeReset.length > 0) {
-      objectsToBeReset.forEach((obj) => {
-        const originalTetrahedron = tetrahedrons.value.find(tetrahedron => tetrahedron.data.originalGroups.includes(obj.userData.groups[0]) && tetrahedron.data.originalGroups.includes(obj.userData.groups[1]))
-        const originalPosition = originalTetrahedron.position
-        obj.quaternion.set(0, 0, 0, 1)
-        obj.rotation.set(0, 0, 0)
-        obj.position.set(...[...originalPosition])
-        obj.userData.initialQuaternion = undefined
-        obj.userData.initialPosition = undefined
-      })
-    }
-  }
-
-  // Store the initial state at the start of the animation, only if not already stored
   objects.forEach((object) => {
-    if (!object.userData.initialQuaternion) {
-      object.userData.initialQuaternion = object.quaternion.clone()
-    }
-    if (!object.userData.initialPosition) {
-      object.userData.initialPosition = object.position.clone()
-    }
+    object.position.sub(centroid)
+    pyraminxRef.value.remove(object)
+    temporaryGroup.add(toRaw(object))
   })
 
   let startTime = null
@@ -381,46 +273,27 @@ function rotateSectionAnimate(objects, axis, angle, duration = 1000, section) {
   function animate(now) {
     if (!startTime) { startTime = now }
     const elapsed = now - startTime
-    const t = Math.min(elapsed / duration, 1) // Normalized time [0,1]
+    const t = Math.min(elapsed / duration, 1)
 
-    objects.forEach((object) => {
-      const startQuaternion = object.userData.initialQuaternion.clone()
-      const startPosition = object.userData.initialPosition.clone()
-
-      // Calculate the target quaternion by applying the incremental rotation
-      const targetQuaternion = new Quaternion().copy(startQuaternion).multiply(incrementalQuaternion)
-
-      // Interpolate the rotation
-      object.quaternion.slerpQuaternions(startQuaternion, targetQuaternion, t)
-      object.quaternion.normalize()
-
-      // Move object to the pivot, apply rotation, then move back
-      const relativePosition = startPosition.clone().sub(centroid)
-      relativePosition.applyQuaternion(new Quaternion().setFromAxisAngle(axis, angle * t))
-      const newPosition = relativePosition.add(centroid)
-      /*  newPosition = new Vector3(
-        Math.round(newPosition.x * 100) / 100,
-        Math.round(newPosition.y * 100) / 100,
-        Math.round(newPosition.z * 100) / 100,
-      ) */
-      object.position.copy(newPosition)
-    })
+    const currentQuaternion = new Quaternion().slerpQuaternions(new Quaternion(), incrementalQuaternion, t)
+    temporaryGroup.setRotationFromQuaternion(currentQuaternion)
 
     if (t < 1) {
       requestAnimationFrame(animate)
     }
     else {
-      console.log('Rotation animation completed')
-      /* scene.value.remove(arrowHelper) */ // Clean up
+      const matrix = new Matrix4()
+      temporaryGroup.updateMatrixWorld(true)
+      matrix.copy(temporaryGroup.matrixWorld)
+      matrix.premultiply(new Matrix4().invert())
 
-      // After animation, update the initial state to the final state
       objects.forEach((object) => {
-        object.userData.initialQuaternion.copy(object.quaternion)
-        object.userData.initialPosition.copy(object.position)
+        object.applyMatrix4(matrix)
+        temporaryGroup.remove(object)
+        pyraminxRef.value.add(object)
         object.userData.groups = updateGroups(object.userData.groups, section, angle > 0)
       })
-      lastSection = section
-      startTime = null // Reset start time for potential subsequent animations
+      scene.value.remove(temporaryGroup)
       isRotating.value = false
     }
   }
@@ -456,7 +329,7 @@ const rotationAxisMap = {
 }
 
 function pyramidRotate(section, clockwise = true, duration = 1000) {
-  const angle = clockwise ? 2 * Math.PI / 3 : -2 * Math.PI / 3
+  const angle = clockwise ? -2 * Math.PI / 3 : 2 * Math.PI / 3
   const objects = pyraminxRef.value.children.filter(child => child.userData.groups.some(group => section.includes(group)))
   if (!isRotating.value) { rotateSectionAnimate(objects, rotationAxisMap[section], angle, duration, section) }
 }
@@ -470,15 +343,7 @@ function shuffle() {
   }, 1000)
 }
 
-function onNormalClick() {
-  pyramidRotate('L', true)
-}
-
-function onRightClick() {
-  pyramidRotate('R', true)
-}
-
-const { l, r, u, b, g /* keys you want to monitor */ } = useMagicKeys()
+const { l, r, u, b, g, s } = useMagicKeys()
 
 watch(l, (value) => {
   if (value) {
@@ -504,23 +369,15 @@ watch(b, (value) => {
   }
 })
 
-watch(g, (value) => {
+watch(s, (value) => {
   if (value && pyraminxRef.value) {
-    const section = 'l'
-    const objects = pyraminxRef.value.children.filter(child => child.userData.groups.some(group => section.includes(group)))
-    calculateCentroid(objects)
+    shuffle()
   }
 })
 </script>
 
 <template>
-  <TresMesh :position="[currentCentroid.x, currentCentroid.y, currentCentroid.z]">
-    <TresSphereGeometry :args="[0.1]" />
-    <TresMeshBasicMaterial color="red" />
-  </TresMesh>
-  <TresGroup
-    ref="pyraminxRef"
-  >
+  <TresGroup ref="pyraminxRef">
     <Tetrahedron
       v-for="(tetrahedron, index) in tetrahedrons"
       ref="tetrahedronsRef"
@@ -539,9 +396,7 @@ watch(g, (value) => {
       :name="`octahedron-${octahedron.data.groups.join('-')}`"
       :user-data="octahedron.data"
       :position="octahedron.position"
-      :model="octahedronNodes.Octahedron"
+      :model="octahedronNodes.OctahedronHybrid"
     />
   </TresGroup>
-  <TresGridHelper />
-  <TresAxesHelper />
 </template>
