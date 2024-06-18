@@ -44,7 +44,15 @@ const EDGE_LENGTH = 1
 const DEEP = Math.sqrt(3) / 2
 const HEIGHT = Math.sqrt(2 / 3) * EDGE_LENGTH
 
-const tetrahedrons = ref([
+const pyramidDefinitionCenter = [EDGE_LENGTH * 1.5, HEIGHT, -DEEP]
+function centerObjects(objects) {
+  return objects.map(obj => ({
+    ...obj,
+    position: obj.position.map((d,i) => d - pyramidDefinitionCenter[i])
+  }))
+}
+
+const tetrahedrons = ref(centerObjects([
   // Base
   {
     position: [0, 0, 0],
@@ -118,10 +126,10 @@ const tetrahedrons = ref([
       groups: ['u', 'U'],
     },
   },
-])
+]))
 
 const octahedronsRef = ref(null)
-const octahedrons = ref([
+const octahedrons = ref(centerObjects([
   {
     position: [0, 0, 0],
     data: {
@@ -150,7 +158,7 @@ const octahedrons = ref([
       groups: ['U'],
     },
   },
-])
+]))
 
 const currentCentroid = ref([0, 0, 0])
 

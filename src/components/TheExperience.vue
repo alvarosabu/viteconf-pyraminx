@@ -18,7 +18,12 @@ const bloomParams = reactive({
 
 <template>
   <TresPerspectiveCamera :position="[-4, -1, 4]" :up="[0, -1, 0]" />
-  <OrbitControls />
+  <OrbitControls
+    autoRotate="true"
+    autoRotateSpeed="10"
+    enablePan="false"
+    enableZoom="false"
+  />
 
   <TresAmbientLight
     :intensity="0.5"
