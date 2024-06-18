@@ -3,7 +3,6 @@ import { TresCanvas } from '@tresjs/core'
 import { reactive } from 'vue'
 import { BasicShadowMap, NoToneMapping, SRGBColorSpace } from 'three'
 import TheExperience from './components/TheExperience.vue'
-import ControlsModal from './components/ControlsModal.vue'
 
 const state = reactive({
   alpha: true,
