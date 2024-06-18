@@ -10,33 +10,24 @@ import Octahedron from './Octahedron.vue'
 const { nodes: tetrahedronNodes, materials: tetrahedronMaterials } = await useGLTF('/tetrahedron.gltf', { draco: true })
 const { nodes: octahedronNodes, materials: octahedronMaterials } = await useGLTF('/octahedron.gltf', { draco: true })
 
-Object.values(tetrahedronMaterials).forEach((material) => {
-  material.opacity = 1
-  material.transparent = true
-  if (material.name === 'NeonFucsia') {
-    material.emissiveIntensity = 3
-  }
-  else if (material.name === 'NeonPurple') {
-    material.emissiveIntensity = 6
-  }
-  else {
-    material.emissiveIntensity = 2
-  }
-})
+const emissiveIntensity = 2
 
-Object.values(octahedronMaterials).forEach((material) => {
+function setupMaterial(material) {
   material.opacity = 1
   material.transparent = true
   if (material.name === 'NeonFucsia') {
-    material.emissiveIntensity = 3
+    material.emissiveIntensity = 1.5 * emissiveIntensity
   }
   else if (material.name === 'NeonPurple') {
-    material.emissiveIntensity = 6
+    material.emissiveIntensity = 3 * emissiveIntensity
   }
   else {
-    material.emissiveIntensity = 2
+    material.emissiveIntensity = emissiveIntensity
   }
-})
+}
+
+Object.values(tetrahedronMaterials).forEach(setupMaterial)
+Object.values(octahedronMaterials).forEach(setupMaterial)
 
 const pyraminxRef = ref(null)
 const tetrahedronsRef = ref(null)
