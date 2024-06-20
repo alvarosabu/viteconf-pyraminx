@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { Ref, ref, watch } from 'vue'
+import type { Ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useTres } from '@tresjs/core'
 
 import { useMagicKeys } from '@vueuse/core'
-import { Group } from 'three'
+import type { Group } from 'three'
 import { usePyraminx } from '../composables/usePyraminx'
 import Tetrahedron from './Tetrahedron.vue'
 import Octahedron from './Octahedron.vue'
@@ -16,8 +17,8 @@ const {
   tetrahedronNodes,
   octahedronNodes,
   // Color logic
-  currentColors,
-  getCurrentColorOrientation,
+  /* currentColors,
+  getCurrentColorOrientation, */
   // Pyraminx logic
   tetrahedrons,
   octahedrons,

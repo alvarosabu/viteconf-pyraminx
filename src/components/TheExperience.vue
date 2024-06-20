@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { OrbitControls } from '@tresjs/cientos'
 import { Bloom, EffectComposer } from '@tresjs/post-processing'
 import { reactive } from 'vue'
 import { BlendFunction, KernelSize } from 'postprocessing'
 import Pyraminx from './Pyraminx.vue'
+import OrbitControls from './OrbitControls.vue'
 
 const bloomParams = reactive({
   threshold: 2,
@@ -24,7 +24,6 @@ const bloomParams = reactive({
     :enablePan="false"
     :enableZoom="false"
   />
-  <OrbitControls />
   <TresAmbientLight
     :intensity="0.5"
     color="red"
