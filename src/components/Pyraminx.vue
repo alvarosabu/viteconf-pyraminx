@@ -1,33 +1,14 @@
 <script setup lang="ts">
-import { reactive, ref, toRaw, unref, watch } from 'vue'
+import { reactive, ref, toRaw, watch } from 'vue'
 import { Group, Matrix4, Quaternion, Vector3 } from 'three'
 import { useTres } from '@tresjs/core'
-import { useGLTF } from '@tresjs/cientos'
+
 import { useMagicKeys } from '@vueuse/core'
+import { usePyraminx } from '../composables/usePyraminx'
 import Tetrahedron from './Tetrahedron.vue'
 import Octahedron from './Octahedron.vue'
 
-const { nodes: tetrahedronNodes, materials: tetrahedronMaterials } = await useGLTF('/tetrahedron.gltf', { draco: true })
-const { nodes: octahedronNodes, materials: octahedronMaterials } = await useGLTF('/octahedron.gltf', { draco: true })
-
-const emissiveIntensity = 2
-
-function setupMaterial(material) {
-  material.opacity = 1
-  material.transparent = true
-  if (material.name === 'NeonFucsia') {
-    material.emissiveIntensity = 1.5 * emissiveIntensity
-  }
-  else if (material.name === 'NeonPurple') {
-    material.emissiveIntensity = 3 * emissiveIntensity
-  }
-  else {
-    material.emissiveIntensity = emissiveIntensity
-  }
-}
-
-Object.values(tetrahedronMaterials).forEach(setupMaterial)
-Object.values(octahedronMaterials).forEach(setupMaterial)
+const { tetrahedronNodes, octahedronNodes } = await usePyraminx()
 
 const pyraminxRef = ref(null)
 const tetrahedronsRef = ref(null)
