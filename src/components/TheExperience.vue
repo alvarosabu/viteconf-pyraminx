@@ -17,14 +17,14 @@ const bloomParams = reactive({
 </script>
 
 <template>
-  <TresPerspectiveCamera :zoom="2.1" :position="[-6, -3, 6]" :up="[0, -1, 0]" />
-  <OrbitControls
+  <!--   <TresPerspectiveCamera :zoom="2.1" :position="[-6, -3, 6]" :up="[0, -1, 0]" /> -->
+  <!-- <OrbitControls
     :autoRotate="true"
-    :autoRotateSpeed="10"
+    :autoRotateSpeed="1"
     :enablePan="false"
     :enableZoom="false"
-  />
-
+  /> -->
+  <OrbitControls />
   <TresAmbientLight
     :intensity="0.5"
     color="red"
@@ -45,4 +45,5 @@ const bloomParams = reactive({
     :intensity="1"
     cast-shadow
   />
+  <TresAxesHelper :size="1" />
 </template>

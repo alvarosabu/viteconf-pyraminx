@@ -7,13 +7,13 @@ settings:
 dependencies:
   '@tresjs/cientos':
     specifier: ^3.9.0
-    version: 3.9.0(@tresjs/core@4.0.0)(three@0.165.0)(tweakpane@4.0.3)(vue@3.4.27)
+    version: 3.9.0(@tresjs/core@4.1.0-next.0)(three@0.165.0)(tweakpane@4.0.3)(vue@3.4.27)
   '@tresjs/core':
-    specifier: 4.0.0
-    version: 4.0.0(three@0.165.0)(vue@3.4.27)
+    specifier: 4.1.0-next.0
+    version: 4.1.0-next.0(three@0.165.0)(vue@3.4.27)
   '@tresjs/post-processing':
     specifier: 1.0.0-next.0
-    version: 1.0.0-next.0(@tresjs/core@4.0.0)(three@0.165.0)(vue@3.4.27)
+    version: 1.0.0-next.0(@tresjs/core@4.1.0-next.0)(three@0.165.0)(vue@3.4.27)
   '@vueuse/core':
     specifier: ^10.10.0
     version: 10.10.0(vue@3.4.27)
@@ -757,7 +757,7 @@ packages:
       - typescript
     dev: true
 
-  /@tresjs/cientos@3.9.0(@tresjs/core@4.0.0)(three@0.165.0)(tweakpane@4.0.3)(vue@3.4.27):
+  /@tresjs/cientos@3.9.0(@tresjs/core@4.1.0-next.0)(three@0.165.0)(tweakpane@4.0.3)(vue@3.4.27):
     resolution: {integrity: sha512-LAtMveKlecKvWh7TNWdwEs3nQUYMLqz9DZy0YhSZ6OVTfL2vevx2K4sH9744UME8OedUf4fkFFkX4OWQRHaDRQ==}
     peerDependencies:
       '@tresjs/core': '>=3.2'
@@ -765,7 +765,7 @@ packages:
       tweakpane: '>=3.0.0'
       vue: '>=3.3'
     dependencies:
-      '@tresjs/core': 4.0.0(three@0.165.0)(vue@3.4.27)
+      '@tresjs/core': 4.1.0-next.0(three@0.165.0)(vue@3.4.27)
       '@vueuse/core': 10.10.0(vue@3.4.27)
       camera-controls: 2.8.3(three@0.165.0)
       stats-gl: 2.2.8
@@ -781,8 +781,8 @@ packages:
       - react
     dev: false
 
-  /@tresjs/core@4.0.0(three@0.165.0)(vue@3.4.27):
-    resolution: {integrity: sha512-OljSaKSFalFqxkGMRdSp33Wzz/1TEoF+ssG3oqLSfmQ7x17ZmdP/w8WYPn9r+XXdpwFReWSN60oogoRCROq8zw==}
+  /@tresjs/core@4.1.0-next.0(three@0.165.0)(vue@3.4.27):
+    resolution: {integrity: sha512-AtYKzkVf3HxsjRw3tbIUc/qX8XlvTWqWcxyKu6fdnJT7goxAFijjQiG3Lmw4bPwJkOO7ATgY95iBKjKwn2Sjsw==}
     peerDependencies:
       three: '>=0.133'
       vue: '>=3.4'
@@ -824,14 +824,14 @@ packages:
       - vitest
     dev: true
 
-  /@tresjs/post-processing@1.0.0-next.0(@tresjs/core@4.0.0)(three@0.165.0)(vue@3.4.27):
+  /@tresjs/post-processing@1.0.0-next.0(@tresjs/core@4.1.0-next.0)(three@0.165.0)(vue@3.4.27):
     resolution: {integrity: sha512-SGEwzZp2gI3aqk+f/0ggAzg+k2YASBKo0Wi/2hI1+WOVRICgBusksYNNZBc810qpRRwUkHuEVCY1v6GTHeOjAw==}
     peerDependencies:
       '@tresjs/core': '>=4.0'
       three: '>=0.133'
       vue: '>=3.3'
     dependencies:
-      '@tresjs/core': 4.0.0(three@0.165.0)(vue@3.4.27)
+      '@tresjs/core': 4.1.0-next.0(three@0.165.0)(vue@3.4.27)
       '@vueuse/core': 10.10.0(vue@3.4.27)
       postprocessing: 6.35.4(three@0.165.0)
       three: 0.165.0

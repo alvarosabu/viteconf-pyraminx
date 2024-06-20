@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@tresjs/cientos": "^3.9.0",
-    "@tresjs/core": "4.0.0",
+    "@tresjs/core": "4.1.0-next.0",
     "@tresjs/post-processing": "1.0.0-next.0",
     "@vueuse/core": "^10.10.0",
     "postprocessing": "^6.35.4",
