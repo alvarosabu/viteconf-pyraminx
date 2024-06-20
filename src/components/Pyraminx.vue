@@ -198,7 +198,7 @@ function updateGroups(groups, section, clockwise) {
 }
 
 const initialColors = {
-  base: [
+  LRB: [
     'yellow', // b-B
     'yellow', // B
     'yellow', // R-B
@@ -209,7 +209,7 @@ const initialColors = {
     'yellow', // L-R
     'yellow', // l-L
   ],
-  left: [
+  BUL: [
     'pink', // b-B
     'pink', // B
     'pink', // L-B
@@ -220,7 +220,7 @@ const initialColors = {
     'pink', // U-L
     'pink', // u-U
   ],
-  right: [
+  ULR: [
     'green', // l-L
     'green', // L
     'green', // L-R
@@ -231,7 +231,7 @@ const initialColors = {
     'green', // U-R
     'green', // u-U
   ],
-  back: [
+  RBU: [
     'purple', // r-R
     'purple', // R
     'purple', // R-B
@@ -248,189 +248,184 @@ const currentColors = reactive({ ...initialColors })
 
 // Update colors after rotation
 function updateColors(section, clockwise) {
-  console.log('updateColors', {
-    section,
-    clockwise,
-  })
   const temp = JSON.parse(JSON.stringify(currentColors))
   if (section === 'l') {
     // [base, left, right, back]
     if (clockwise) {
-      currentColors.right[0] = temp.left[4]
-      currentColors.base[4] = temp.right[0]
-      currentColors.left[4] = temp.base[4]
+      currentColors.ULR[0] = temp.BUL[4]
+      currentColors.LRB[4] = temp.ULR[0]
+      currentColors.BUL[4] = temp.LRB[4]
     }
     else {
-      currentColors.right[0] = temp.base[4]
-      currentColors.base[4] = temp.left[4]
-      currentColors.left[4] = temp.right[0]
+      currentColors.ULR[0] = temp.LRB[4]
+      currentColors.LRB[4] = temp.BUL[4]
+      currentColors.BUL[4] = temp.ULR[0]
     }
   }
   if (section === 'L') {
     // [base, left, right, back]
     if (clockwise) {
-      currentColors.right[0] = temp.left[4]
-      currentColors.right[1] = temp.left[3]
-      currentColors.right[2] = temp.left[5]
-      currentColors.right[5] = temp.left[2]
-      currentColors.base[4] = temp.right[0]
-      currentColors.base[3] = temp.right[1]
-      currentColors.base[7] = temp.right[2]
-      currentColors.base[2] = temp.right[5]
-      currentColors.left[4] = temp.base[4]
-      currentColors.left[3] = temp.base[3]
-      currentColors.left[7] = temp.base[7]
-      currentColors.left[2] = temp.base[2]
+      currentColors.ULR[0] = temp.BUL[4]
+      currentColors.ULR[1] = temp.BUL[3]
+      currentColors.ULR[2] = temp.BUL[5]
+      currentColors.ULR[5] = temp.BUL[2]
+      currentColors.LRB[4] = temp.ULR[0]
+      currentColors.LRB[3] = temp.ULR[1]
+      currentColors.LRB[7] = temp.ULR[2]
+      currentColors.LRB[2] = temp.ULR[5]
+      currentColors.BUL[4] = temp.LRB[4]
+      currentColors.BUL[3] = temp.LRB[3]
+      currentColors.BUL[7] = temp.LRB[7]
+      currentColors.BUL[2] = temp.LRB[2]
     }
     else {
-      currentColors.right[0] = temp.base[4]
-      currentColors.right[1] = temp.base[3]
-      currentColors.right[2] = temp.base[7]
-      currentColors.right[5] = temp.base[2]
-      currentColors.base[4] = temp.left[4]
-      currentColors.base[3] = temp.left[3]
-      currentColors.base[7] = temp.left[7]
-      currentColors.base[2] = temp.left[2]
-      currentColors.left[4] = temp.right[0]
-      currentColors.left[3] = temp.right[1]
-      currentColors.left[7] = temp.right[2]
-      currentColors.left[2] = temp.right[5]
+      currentColors.ULR[0] = temp.LRB[4]
+      currentColors.ULR[1] = temp.LRB[3]
+      currentColors.ULR[2] = temp.LRB[7]
+      currentColors.ULR[5] = temp.LRB[2]
+      currentColors.LRB[4] = temp.BUL[4]
+      currentColors.LRB[3] = temp.BUL[3]
+      currentColors.LRB[7] = temp.BUL[7]
+      currentColors.LRB[2] = temp.BUL[2]
+      currentColors.BUL[4] = temp.ULR[0]
+      currentColors.BUL[3] = temp.ULR[1]
+      currentColors.BUL[7] = temp.ULR[2]
+      currentColors.BUL[2] = temp.ULR[5]
     }
   }
   if (section === 'r') {
     // [base, left, right, back]
     if (clockwise) {
-      currentColors.right[4] = temp.base[0]
-      currentColors.back[0] = temp.right[4]
-      currentColors.base[0] = temp.back[0]
+      currentColors.ULR[4] = temp.LRB[0]
+      currentColors.RBU[0] = temp.ULR[4]
+      currentColors.LRB[0] = temp.RBU[0]
     }
     else {
-      currentColors.right[4] = temp.back[0]
-      currentColors.back[0] = temp.base[0]
-      currentColors.base[0] = temp.right[4]
+      currentColors.ULR[4] = temp.RBU[0]
+      currentColors.RBU[0] = temp.LRB[0]
+      currentColors.LRB[0] = temp.ULR[4]
     }
   }
   if (section === 'R') {
     // [base, left, right, back]
     if (clockwise) {
-      currentColors.right[4] = temp.base[0]
-      currentColors.right[3] = temp.base[1]
-      currentColors.right[7] = temp.base[2]
-      currentColors.right[2] = temp.base[5]
-      currentColors.base[0] = temp.back[0]
-      currentColors.base[1] = temp.back[1]
-      currentColors.base[2] = temp.back[2]
-      currentColors.base[5] = temp.back[5]
-      currentColors.back[0] = temp.right[4]
-      currentColors.back[1] = temp.right[3]
-      currentColors.back[2] = temp.right[7]
-      currentColors.back[5] = temp.right[2]
+      currentColors.ULR[4] = temp.LRB[0]
+      currentColors.ULR[3] = temp.LRB[1]
+      currentColors.ULR[7] = temp.LRB[2]
+      currentColors.ULR[2] = temp.LRB[5]
+      currentColors.LRB[0] = temp.RBU[0]
+      currentColors.LRB[1] = temp.RBU[1]
+      currentColors.LRB[2] = temp.RBU[2]
+      currentColors.LRB[5] = temp.RBU[5]
+      currentColors.RBU[0] = temp.ULR[4]
+      currentColors.RBU[1] = temp.ULR[3]
+      currentColors.RBU[2] = temp.ULR[7]
+      currentColors.RBU[5] = temp.ULR[2]
     }
     else {
-      currentColors.right[4] = temp.back[0]
-      currentColors.right[3] = temp.back[1]
-      currentColors.right[7] = temp.back[2]
-      currentColors.right[2] = temp.back[5]
-      currentColors.base[0] = temp.right[4]
-      currentColors.base[1] = temp.right[3]
-      currentColors.base[2] = temp.right[7]
-      currentColors.base[5] = temp.right[2]
-      currentColors.back[0] = temp.base[0]
-      currentColors.back[1] = temp.base[1]
-      currentColors.back[2] = temp.base[2]
-      currentColors.back[5] = temp.base[5]
+      currentColors.ULR[4] = temp.RBU[0]
+      currentColors.ULR[3] = temp.RBU[1]
+      currentColors.ULR[7] = temp.RBU[2]
+      currentColors.ULR[2] = temp.RBU[5]
+      currentColors.LRB[0] = temp.ULR[4]
+      currentColors.LRB[1] = temp.ULR[3]
+      currentColors.LRB[2] = temp.ULR[7]
+      currentColors.LRB[5] = temp.ULR[2]
+      currentColors.RBU[0] = temp.LRB[0]
+      currentColors.RBU[1] = temp.LRB[1]
+      currentColors.RBU[2] = temp.LRB[2]
+      currentColors.RBU[5] = temp.LRB[5]
     }
   }
   if (section === 'u') {
     // [base, left, right, back]
     if (clockwise) {
-      currentColors.left[8] = temp.right[8]
-      currentColors.back[8] = temp.left[8]
-      currentColors.right[8] = temp.back[8]
+      currentColors.BUL[8] = temp.ULR[8]
+      currentColors.RBU[8] = temp.BUL[8]
+      currentColors.ULR[8] = temp.RBU[8]
     }
     else {
-      currentColors.left[8] = temp.back[8]
-      currentColors.back[8] = temp.right[8]
-      currentColors.right[8] = temp.left[8]
+      currentColors.BUL[8] = temp.RBU[8]
+      currentColors.RBU[8] = temp.ULR[8]
+      currentColors.ULR[8] = temp.BUL[8]
     }
   }
 
   if (section === 'U') {
     if (clockwise) {
-      currentColors.left[8] = temp.right[8]
-      currentColors.left[7] = temp.right[7]
-      currentColors.left[6] = temp.right[6]
-      currentColors.left[5] = temp.right[5]
-      currentColors.back[8] = temp.left[8]
-      currentColors.back[7] = temp.left[7]
-      currentColors.back[6] = temp.left[6]
-      currentColors.back[5] = temp.left[5]
-      currentColors.right[8] = temp.back[8]
-      currentColors.right[7] = temp.back[7]
-      currentColors.right[6] = temp.back[6]
-      currentColors.right[5] = temp.back[5]
+      currentColors.BUL[8] = temp.ULR[8]
+      currentColors.BUL[7] = temp.ULR[7]
+      currentColors.BUL[6] = temp.ULR[6]
+      currentColors.BUL[5] = temp.ULR[5]
+      currentColors.RBU[8] = temp.BUL[8]
+      currentColors.RBU[7] = temp.BUL[7]
+      currentColors.RBU[6] = temp.BUL[6]
+      currentColors.RBU[5] = temp.BUL[5]
+      currentColors.ULR[8] = temp.RBU[8]
+      currentColors.ULR[7] = temp.RBU[7]
+      currentColors.ULR[6] = temp.RBU[6]
+      currentColors.ULR[5] = temp.RBU[5]
     }
     else {
-      currentColors.left[8] = temp.back[8]
-      currentColors.left[7] = temp.back[7]
-      currentColors.left[6] = temp.back[6]
-      currentColors.left[5] = temp.back[5]
-      currentColors.back[8] = temp.right[8]
-      currentColors.back[7] = temp.right[7]
-      currentColors.back[6] = temp.right[6]
-      currentColors.back[5] = temp.right[5]
-      currentColors.right[8] = temp.left[8]
-      currentColors.right[7] = temp.left[7]
-      currentColors.right[6] = temp.left[6]
-      currentColors.right[5] = temp.left[5]
+      currentColors.BUL[8] = temp.RBU[8]
+      currentColors.BUL[7] = temp.RBU[7]
+      currentColors.BUL[6] = temp.RBU[6]
+      currentColors.BUL[5] = temp.RBU[5]
+      currentColors.RBU[8] = temp.ULR[8]
+      currentColors.RBU[7] = temp.ULR[7]
+      currentColors.RBU[6] = temp.ULR[6]
+      currentColors.RBU[5] = temp.ULR[5]
+      currentColors.ULR[8] = temp.BUL[8]
+      currentColors.ULR[7] = temp.BUL[7]
+      currentColors.ULR[6] = temp.BUL[6]
+      currentColors.ULR[5] = temp.BUL[5]
     }
   }
 
   if (section === 'b') {
     if (clockwise) {
-      currentColors.base[8] = temp.left[0]
-      currentColors.back[4] = temp.base[8]
-      currentColors.left[0] = temp.back[4]
+      currentColors.LRB[8] = temp.BUL[0]
+      currentColors.RBU[4] = temp.LRB[8]
+      currentColors.BUL[0] = temp.RBU[4]
     }
     else {
-      currentColors.base[8] = temp.back[4]
-      currentColors.back[4] = temp.left[0]
-      currentColors.left[0] = temp.base[8]
+      currentColors.LRB[8] = temp.RBU[4]
+      currentColors.RBU[4] = temp.BUL[0]
+      currentColors.BUL[0] = temp.LRB[8]
     }
   }
 
   if (section === 'B') {
     if (clockwise) {
-      currentColors.base[8] = temp.left[0]
-      currentColors.base[7] = temp.left[5]
-      currentColors.base[6] = temp.left[1]
-      currentColors.base[5] = temp.left[2]
-      currentColors.back[4] = temp.base[8]
-      currentColors.back[2] = temp.base[7]
-      currentColors.back[3] = temp.base[6]
-      currentColors.back[7] = temp.base[5]
-      currentColors.left[0] = temp.back[4]
-      currentColors.left[1] = temp.back[3]
-      currentColors.left[2] = temp.back[7]
-      currentColors.left[5] = temp.back[2]
+      currentColors.LRB[8] = temp.BUL[0]
+      currentColors.LRB[7] = temp.BUL[5]
+      currentColors.LRB[6] = temp.BUL[1]
+      currentColors.LRB[5] = temp.BUL[2]
+      currentColors.RBU[4] = temp.LRB[8]
+      currentColors.RBU[2] = temp.LRB[7]
+      currentColors.RBU[3] = temp.LRB[6]
+      currentColors.RBU[7] = temp.LRB[5]
+      currentColors.BUL[0] = temp.RBU[4]
+      currentColors.BUL[1] = temp.RBU[3]
+      currentColors.BUL[2] = temp.RBU[7]
+      currentColors.BUL[5] = temp.RBU[2]
     }
     else {
-      currentColors.base[8] = temp.back[4]
-      currentColors.base[7] = temp.back[2]
-      currentColors.base[6] = temp.back[3]
-      currentColors.base[5] = temp.back[7]
-      currentColors.back[4] = temp.left[0]
-      currentColors.back[2] = temp.left[5]
-      currentColors.back[3] = temp.left[1]
-      currentColors.back[7] = temp.left[2]
-      currentColors.left[0] = temp.base[8]
-      currentColors.left[1] = temp.base[6]
-      currentColors.left[2] = temp.base[7]
-      currentColors.left[5] = temp.base[5]
+      currentColors.LRB[8] = temp.RBU[4]
+      currentColors.LRB[7] = temp.RBU[2]
+      currentColors.LRB[6] = temp.RBU[3]
+      currentColors.LRB[5] = temp.RBU[7]
+      currentColors.RBU[4] = temp.BUL[0]
+      currentColors.RBU[2] = temp.BUL[5]
+      currentColors.RBU[3] = temp.BUL[1]
+      currentColors.RBU[7] = temp.BUL[2]
+      currentColors.BUL[0] = temp.LRB[8]
+      currentColors.BUL[1] = temp.LRB[6]
+      currentColors.BUL[2] = temp.LRB[7]
+      currentColors.BUL[5] = temp.LRB[5]
     }
   }
-
-  console.log('Current Colors', currentColors)
+  console.log(currentColors)
 }
 
 function calculateCentroid(meshes) {
@@ -549,10 +544,10 @@ const rotationAxisMap = {
 
 function getCurrentColorOrientation() {
   return {
-    base: currentColors.base,
-    left: currentColors.left,
-    right: currentColors.right,
-    back: currentColors.back,
+    LRB: currentColors.LRB, // Base
+    BUL: currentColors.BUL, // Left
+    ULR: currentColors.ULR,
+    RBU: currentColors.RBU,
   }
 }
 
@@ -573,7 +568,7 @@ function shuffle() {
   }, 1000)
 }
 
-const { shift, ctrl, l, r, u, b, g, s } = useMagicKeys()
+const { shift, ctrl, l, r, u, b, s } = useMagicKeys()
 
 watch(l, (value) => {
   if (value) {
@@ -604,8 +599,6 @@ watch(s, (value) => {
     shuffle()
   }
 })
-
-console.log('Current Colors', getCurrentColorOrientation())
 </script>
 
 <template>
