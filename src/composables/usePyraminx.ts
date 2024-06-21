@@ -31,48 +31,48 @@ export async function usePyraminx(pyraminxRef: Ref<Group | null>, scene: Ref<Sce
   // Feature update colors:
   const initialColors = {
     LRB: {
-      Bb: 'yellow', // b-B
-      B: 'yellow', // B
-      RB: 'yellow', // R-B
-      R: 'yellow', // R
-      Rr: 'yellow', // r-R
-      BL: 'yellow', // L-B
-      L: 'yellow', // L
-      LR: 'yellow', // L-R
-      Ll: 'yellow', // l-L
+      Bb: 'yellow',
+      B: 'yellow',
+      RB: 'yellow',
+      R: 'yellow',
+      Rr: 'yellow',
+      BL: 'yellow',
+      L: 'yellow',
+      LR: 'yellow',
+      Ll: 'yellow',
     },
     BUL: {
-      Bb: 'pink', // b-B
-      B: 'pink', // B
-      LB: 'pink', // L-B
-      L: 'pink', // L
-      Ll: 'pink', // l-L
-      BU: 'pink', // U-B
-      U: 'pink', // U
-      UL: 'pink', // U-L
-      Uu: 'pink', // u-U
+      Bb: 'pink',
+      B: 'pink',
+      LB: 'pink',
+      L: 'pink',
+      Ll: 'pink',
+      BU: 'pink',
+      U: 'pink',
+      UL: 'pink',
+      Uu: 'pink',
     },
     ULR: {
-      Ll: 'green', // l-L
-      L: 'green', // L
-      LR: 'green', // L-R
-      R: 'green', // R
-      Rr: 'green', // r-R
-      UL: 'green', // U-L
-      U: 'green', // U
-      RU: 'green', // U-R
-      Uu: 'green', // u-U
+      Ll: 'green',
+      L: 'green',
+      LR: 'green',
+      R: 'green',
+      Rr: 'green',
+      UL: 'green',
+      U: 'green',
+      RU: 'green',
+      Uu: 'green',
     },
     RBU: {
-      Rr: 'purple', // r-R
-      R: 'purple', // R
-      RB: 'purple', // R-B
-      B: 'purple', // B
-      Bb: 'purple', // b-B
-      UR: 'purple', // U-R
-      U: 'purple', // U
-      BU: 'purple', // U-B
-      Uu: 'purple', // u-U
+      Rr: 'purple',
+      R: 'purple',
+      RB: 'purple',
+      B: 'purple',
+      Bb: 'purple',
+      UR: 'purple',
+      U: 'purple',
+      BU: 'purple',
+      Uu: 'purple',
     },
   }
 
