@@ -30,50 +30,50 @@ export async function usePyraminx(pyraminxRef: Ref<Group | null>, scene: Ref<Sce
 
   // Feature update colors:
   const initialColors = {
-    LRB: [
-      'yellow', // b-B
-      'yellow', // B
-      'yellow', // R-B
-      'yellow', // R
-      'yellow', // r-R
-      'yellow', // L-B
-      'yellow', // L
-      'yellow', // L-R
-      'yellow', // l-L
-    ],
-    BUL: [
-      'pink', // b-B
-      'pink', // B
-      'pink', // L-B
-      'pink', // L
-      'pink', // l-L
-      'pink', // U-B
-      'pink', // U
-      'pink', // U-L
-      'pink', // u-U
-    ],
-    ULR: [
-      'green', // l-L
-      'green', // L
-      'green', // L-R
-      'green', // R
-      'green', // r-R
-      'green', // U-L
-      'green', // U
-      'green', // U-R
-      'green', // u-U
-    ],
-    RBU: [
-      'purple', // r-R
-      'purple', // R
-      'purple', // R-B
-      'purple', // B
-      'purple', // b-B
-      'purple', // U-R
-      'purple', // U
-      'purple', // U-B
-      'purple', // u-U
-    ],
+    LRB: {
+      Bb: 'yellow', // b-B
+      B: 'yellow', // B
+      RB: 'yellow', // R-B
+      R: 'yellow', // R
+      Rr: 'yellow', // r-R
+      BL: 'yellow', // L-B
+      L: 'yellow', // L
+      LR: 'yellow', // L-R
+      Ll: 'yellow', // l-L
+    },
+    BUL: {
+      Bb: 'pink', // b-B
+      B: 'pink', // B
+      LB: 'pink', // L-B
+      L: 'pink', // L
+      Ll: 'pink', // l-L
+      BU: 'pink', // U-B
+      U: 'pink', // U
+      UL: 'pink', // U-L
+      Uu: 'pink', // u-U
+    },
+    ULR: {
+      Ll: 'green', // l-L
+      L: 'green', // L
+      LR: 'green', // L-R
+      R: 'green', // R
+      Rr: 'green', // r-R
+      UL: 'green', // U-L
+      U: 'green', // U
+      RU: 'green', // U-R
+      Uu: 'green', // u-U
+    },
+    RBU: {
+      Rr: 'purple', // r-R
+      R: 'purple', // R
+      RB: 'purple', // R-B
+      B: 'purple', // B
+      Bb: 'purple', // b-B
+      UR: 'purple', // U-R
+      U: 'purple', // U
+      BU: 'purple', // U-B
+      Uu: 'purple', // u-U
+    },
   }
 
   const currentColors = reactive({ ...initialColors })
@@ -84,177 +84,177 @@ export async function usePyraminx(pyraminxRef: Ref<Group | null>, scene: Ref<Sce
     if (section === 'l') {
       // [base, left, right, back]
       if (clockwise) {
-        currentColors.ULR[0] = temp.BUL[4]
-        currentColors.LRB[4] = temp.ULR[0]
-        currentColors.BUL[4] = temp.LRB[4]
+        currentColors.ULR.Ll = temp.BUL.Ll
+        currentColors.LRB.Ll = temp.ULR.Ll
+        currentColors.BUL.Ll = temp.LRB.Ll
       }
       else {
-        currentColors.ULR[0] = temp.LRB[4]
-        currentColors.LRB[4] = temp.BUL[4]
-        currentColors.BUL[4] = temp.ULR[0]
+        currentColors.ULR.Ll = temp.LRB.Ll
+        currentColors.LRB.Ll = temp.BUL.Ll
+        currentColors.BUL.Ll = temp.ULR.Ll
       }
     }
     if (section === 'L') {
       // [base, left, right, back]
       if (clockwise) {
-        currentColors.ULR[0] = temp.BUL[4]
-        currentColors.ULR[1] = temp.BUL[3]
-        currentColors.ULR[2] = temp.BUL[5]
-        currentColors.ULR[5] = temp.BUL[2]
-        currentColors.LRB[4] = temp.ULR[0]
-        currentColors.LRB[3] = temp.ULR[1]
-        currentColors.LRB[7] = temp.ULR[2]
-        currentColors.LRB[2] = temp.ULR[5]
-        currentColors.BUL[4] = temp.LRB[4]
-        currentColors.BUL[3] = temp.LRB[3]
-        currentColors.BUL[7] = temp.LRB[7]
-        currentColors.BUL[2] = temp.LRB[2]
+        currentColors.ULR.Ll = temp.BUL.Ll
+        currentColors.ULR.L = temp.BUL.L
+        currentColors.ULR.LR = temp.BUL.LB
+        currentColors.ULR.UL = temp.BUL.LB
+        currentColors.LRB.Ll = temp.ULR.Ll
+        currentColors.LRB.L = temp.ULR.L
+        currentColors.LRB.BL = temp.ULR.LR
+        currentColors.LRB.LR = temp.ULR.UL
+        currentColors.BUL.Ll = temp.LRB.Ll
+        currentColors.BUL.L = temp.LRB.L
+        currentColors.BUL.UL = temp.LRB.BL
+        currentColors.BUL.LB = temp.LRB.LR
       }
       else {
-        currentColors.ULR[0] = temp.LRB[4]
-        currentColors.ULR[1] = temp.LRB[3]
-        currentColors.ULR[2] = temp.LRB[7]
-        currentColors.ULR[5] = temp.LRB[2]
-        currentColors.LRB[4] = temp.BUL[4]
-        currentColors.LRB[3] = temp.BUL[3]
-        currentColors.LRB[7] = temp.BUL[7]
-        currentColors.LRB[2] = temp.BUL[2]
-        currentColors.BUL[4] = temp.ULR[0]
-        currentColors.BUL[3] = temp.ULR[1]
-        currentColors.BUL[7] = temp.ULR[2]
-        currentColors.BUL[2] = temp.ULR[5]
+        currentColors.ULR.Ll = temp.LRB.Ll
+        currentColors.ULR.L = temp.LRB.L
+        currentColors.ULR.LR = temp.LRB.BL
+        currentColors.ULR.UL = temp.LRB.LR
+        currentColors.LRB.Ll = temp.BUL.Ll
+        currentColors.LRB.L = temp.BUL.L
+        currentColors.LRB.BL = temp.BUL.UL
+        currentColors.LRB.LR = temp.BUL.LB
+        currentColors.BUL.Ll = temp.ULR.Ll
+        currentColors.BUL.L = temp.ULR.L
+        currentColors.BUL.UL = temp.ULR.LR
+        currentColors.BUL.LB = temp.ULR.UL
       }
     }
     if (section === 'r') {
       // [base, left, right, back]
       if (clockwise) {
-        currentColors.ULR[4] = temp.LRB[0]
-        currentColors.RBU[0] = temp.ULR[4]
-        currentColors.LRB[0] = temp.RBU[0]
+        currentColors.ULR.Rr = temp.LRB.Rr
+        currentColors.RBU.Rr = temp.ULR.Rr
+        currentColors.LRB.Rr = temp.RBU.Rr
       }
       else {
-        currentColors.ULR[4] = temp.RBU[0]
-        currentColors.RBU[0] = temp.LRB[0]
-        currentColors.LRB[0] = temp.ULR[4]
+        currentColors.ULR.Rr = temp.RBU.Rr
+        currentColors.RBU.Rr = temp.LRB.Rr
+        currentColors.LRB.Rr = temp.ULR.Rr
       }
     }
     if (section === 'R') {
       // [base, left, right, back]
       if (clockwise) {
-        currentColors.ULR[4] = temp.LRB[0]
-        currentColors.ULR[3] = temp.LRB[1]
-        currentColors.ULR[7] = temp.LRB[2]
-        currentColors.ULR[2] = temp.LRB[5]
-        currentColors.LRB[0] = temp.RBU[0]
-        currentColors.LRB[1] = temp.RBU[1]
-        currentColors.LRB[2] = temp.RBU[2]
-        currentColors.LRB[5] = temp.RBU[5]
-        currentColors.RBU[0] = temp.ULR[4]
-        currentColors.RBU[1] = temp.ULR[3]
-        currentColors.RBU[2] = temp.ULR[7]
-        currentColors.RBU[5] = temp.ULR[2]
+        currentColors.ULR.Rr = temp.LRB.Rr
+        currentColors.ULR.R = temp.LRB.R
+        currentColors.ULR.RU = temp.LRB.LR
+        currentColors.ULR.LR = temp.LRB.RB
+        currentColors.LRB.Rr = temp.RBU.Rr
+        currentColors.LRB.R = temp.RBU.R
+        currentColors.LRB.LR = temp.RBU.RB
+        currentColors.LRB.RB = temp.RBU.UR
+        currentColors.RBU.Rr = temp.ULR.Rr
+        currentColors.RBU.R = temp.ULR.R
+        currentColors.RBU.RB = temp.ULR.RU
+        currentColors.RBU.UR = temp.ULR.LR
       }
       else {
-        currentColors.ULR[4] = temp.RBU[0]
-        currentColors.ULR[3] = temp.RBU[1]
-        currentColors.ULR[7] = temp.RBU[2]
-        currentColors.ULR[2] = temp.RBU[5]
-        currentColors.LRB[0] = temp.ULR[4]
-        currentColors.LRB[1] = temp.ULR[3]
-        currentColors.LRB[2] = temp.ULR[7]
-        currentColors.LRB[5] = temp.ULR[2]
-        currentColors.RBU[0] = temp.LRB[0]
-        currentColors.RBU[1] = temp.LRB[1]
-        currentColors.RBU[2] = temp.LRB[2]
-        currentColors.RBU[5] = temp.LRB[5]
+        currentColors.ULR.Rr = temp.RBU.Rr
+        currentColors.ULR.R = temp.RBU.R
+        currentColors.ULR.RU = temp.RBU.RB
+        currentColors.ULR.LR = temp.RBU.UR
+        currentColors.LRB.Rr = temp.ULR.Rr
+        currentColors.LRB.R = temp.ULR.R
+        currentColors.LRB.LR = temp.ULR.RU
+        currentColors.LRB.RB = temp.ULR.LR
+        currentColors.RBU.Rr = temp.LRB.Rr
+        currentColors.RBU.R = temp.LRB.R
+        currentColors.RBU.RB = temp.LRB.LR
+        currentColors.RBU.UR = temp.LRB.RB
       }
     }
     if (section === 'u') {
       // [base, left, right, back]
       if (clockwise) {
-        currentColors.BUL[8] = temp.ULR[8]
-        currentColors.RBU[8] = temp.BUL[8]
-        currentColors.ULR[8] = temp.RBU[8]
+        currentColors.BUL.Uu = temp.ULR.Uu
+        currentColors.RBU.Uu = temp.BUL.Uu
+        currentColors.ULR.Uu = temp.RBU.Uu
       }
       else {
-        currentColors.BUL[8] = temp.RBU[8]
-        currentColors.RBU[8] = temp.ULR[8]
-        currentColors.ULR[8] = temp.BUL[8]
+        currentColors.BUL.Uu = temp.RBU.Uu
+        currentColors.RBU.Uu = temp.ULR.Uu
+        currentColors.ULR.Uu = temp.BUL.Uu
       }
     }
 
     if (section === 'U') {
       if (clockwise) {
-        currentColors.BUL[8] = temp.ULR[8]
-        currentColors.BUL[7] = temp.ULR[7]
-        currentColors.BUL[6] = temp.ULR[6]
-        currentColors.BUL[5] = temp.ULR[5]
-        currentColors.RBU[8] = temp.BUL[8]
-        currentColors.RBU[7] = temp.BUL[7]
-        currentColors.RBU[6] = temp.BUL[6]
-        currentColors.RBU[5] = temp.BUL[5]
-        currentColors.ULR[8] = temp.RBU[8]
-        currentColors.ULR[7] = temp.RBU[7]
-        currentColors.ULR[6] = temp.RBU[6]
-        currentColors.ULR[5] = temp.RBU[5]
+        currentColors.BUL.Uu = temp.ULR.Uu
+        currentColors.BUL.UL = temp.ULR.RU
+        currentColors.BUL.U = temp.ULR.U
+        currentColors.BUL.LB = temp.ULR.UL
+        currentColors.RBU.Uu = temp.BUL.Uu
+        currentColors.RBU.BU = temp.BUL.UL
+        currentColors.RBU.U = temp.BUL.U
+        currentColors.RBU.UR = temp.BUL.LB
+        currentColors.ULR.Uu = temp.RBU.Uu
+        currentColors.ULR.RU = temp.RBU.BU
+        currentColors.ULR.U = temp.RBU.U
+        currentColors.ULR.UL = temp.RBU.UR
       }
       else {
-        currentColors.BUL[8] = temp.RBU[8]
-        currentColors.BUL[7] = temp.RBU[7]
-        currentColors.BUL[6] = temp.RBU[6]
-        currentColors.BUL[5] = temp.RBU[5]
-        currentColors.RBU[8] = temp.ULR[8]
-        currentColors.RBU[7] = temp.ULR[7]
-        currentColors.RBU[6] = temp.ULR[6]
-        currentColors.RBU[5] = temp.ULR[5]
-        currentColors.ULR[8] = temp.BUL[8]
-        currentColors.ULR[7] = temp.BUL[7]
-        currentColors.ULR[6] = temp.BUL[6]
-        currentColors.ULR[5] = temp.BUL[5]
+        currentColors.BUL.Uu = temp.RBU.Uu
+        currentColors.BUL.UL = temp.RBU.BU
+        currentColors.BUL.U = temp.RBU.U
+        currentColors.BUL.LB = temp.RBU.UR
+        currentColors.RBU.Uu = temp.ULR.Uu
+        currentColors.RBU.BU = temp.ULR.RU
+        currentColors.RBU.U = temp.ULR.U
+        currentColors.RBU.UR = temp.ULR.UL
+        currentColors.ULR.Uu = temp.BUL.Uu
+        currentColors.ULR.RU = temp.BUL.UL
+        currentColors.ULR.U = temp.BUL.U
+        currentColors.ULR.UL = temp.BUL.LB
       }
     }
 
     if (section === 'b') {
       if (clockwise) {
-        currentColors.LRB[8] = temp.BUL[0]
-        currentColors.RBU[4] = temp.LRB[8]
-        currentColors.BUL[0] = temp.RBU[4]
+        currentColors.LRB.Bb = temp.BUL.Bb
+        currentColors.RBU.Bb = temp.LRB.Bb
+        currentColors.BUL.Bb = temp.RBU.Bb
       }
       else {
-        currentColors.LRB[8] = temp.RBU[4]
-        currentColors.RBU[4] = temp.BUL[0]
-        currentColors.BUL[0] = temp.LRB[8]
+        currentColors.LRB.Bb = temp.RBU.Bb
+        currentColors.RBU.Bb = temp.BUL.Bb
+        currentColors.BUL.Bb = temp.LRB.Bb
       }
     }
 
     if (section === 'B') {
       if (clockwise) {
-        currentColors.LRB[8] = temp.BUL[0]
-        currentColors.LRB[7] = temp.BUL[5]
-        currentColors.LRB[6] = temp.BUL[1]
-        currentColors.LRB[5] = temp.BUL[2]
-        currentColors.RBU[4] = temp.LRB[8]
-        currentColors.RBU[2] = temp.LRB[7]
-        currentColors.RBU[3] = temp.LRB[6]
-        currentColors.RBU[7] = temp.LRB[5]
-        currentColors.BUL[0] = temp.RBU[4]
-        currentColors.BUL[1] = temp.RBU[3]
-        currentColors.BUL[2] = temp.RBU[7]
-        currentColors.BUL[5] = temp.RBU[2]
+        currentColors.LRB.Bb = temp.BUL.Bb
+        currentColors.LRB.BL = temp.BUL.LB
+        currentColors.LRB.B = temp.BUL.B
+        currentColors.LRB.RB = temp.BUL.LB
+        currentColors.RBU.Bb = temp.LRB.Bb
+        currentColors.RBU.RB = temp.LRB.BL
+        currentColors.RBU.B = temp.LRB.B
+        currentColors.RBU.BU = temp.LRB.RB
+        currentColors.BUL.Bb = temp.RBU.Bb
+        currentColors.BUL.B = temp.RBU.B
+        currentColors.BUL.LB = temp.RBU.BU
+        currentColors.BUL.LB = temp.RBU.RB
       }
       else {
-        currentColors.LRB[8] = temp.RBU[4]
-        currentColors.LRB[7] = temp.RBU[2]
-        currentColors.LRB[6] = temp.RBU[3]
-        currentColors.LRB[5] = temp.RBU[7]
-        currentColors.RBU[4] = temp.BUL[0]
-        currentColors.RBU[2] = temp.BUL[5]
-        currentColors.RBU[3] = temp.BUL[1]
-        currentColors.RBU[7] = temp.BUL[2]
-        currentColors.BUL[0] = temp.LRB[8]
-        currentColors.BUL[1] = temp.LRB[6]
-        currentColors.BUL[2] = temp.LRB[7]
-        currentColors.BUL[5] = temp.LRB[5]
+        currentColors.LRB.Bb = temp.RBU.Bb
+        currentColors.LRB.BL = temp.RBU.RB
+        currentColors.LRB.B = temp.RBU.B
+        currentColors.LRB.RB = temp.RBU.BU
+        currentColors.RBU.Bb = temp.BUL.Bb
+        currentColors.RBU.RB = temp.BUL.LB
+        currentColors.RBU.B = temp.BUL.B
+        currentColors.RBU.BU = temp.BUL.LB
+        currentColors.BUL.Bb = temp.LRB.Bb
+        currentColors.BUL.B = temp.LRB.B
+        currentColors.BUL.LB = temp.LRB.BL
+        currentColors.BUL.LB = temp.LRB.RB
       }
     }
     console.log(currentColors)
