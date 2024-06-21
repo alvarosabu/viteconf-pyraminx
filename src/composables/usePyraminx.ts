@@ -6,8 +6,8 @@ import { reactive, ref, toRaw } from 'vue'
 
 export async function usePyraminx(pyraminxRef: Ref<Group | null>, scene: Ref<Scene>) {
   // Feature: load models and setup materials
-  const { nodes: tetrahedronNodes, materials: tetrahedronMaterials } = await useGLTF('/tetrahedron.gltf', { draco: true })
-  const { nodes: octahedronNodes, materials: octahedronMaterials } = await useGLTF('/octahedron.gltf', { draco: true })
+  const { nodes: tetrahedronNodes, materials: tetrahedronMaterials } = await useGLTF('/tetrahedron.gltf')
+  const { nodes: octahedronNodes, materials: octahedronMaterials } = await useGLTF('/octahedron.gltf')
 
   const emissiveIntensity = 2
 
