@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { useTres } from '@tresjs/core'
-
-import { useMagicKeys } from '@vueuse/core'
 import type { Group } from 'three'
 import { usePyraminx } from '../composables/usePyraminx'
+import { useKeybindings } from '../composables/useKeybindings'
 import Tetrahedron from './Tetrahedron.vue'
 import Octahedron from './Octahedron.vue'
 
@@ -16,55 +15,20 @@ const {
   // Models
   tetrahedronNodes,
   octahedronNodes,
+  
   // Color logic
-  /* currentColors,
-  getCurrentColorOrientation, */
+  getFromFacePosition,
+  getFromColor,
+  getColor,
+
   // Pyraminx logic
   tetrahedrons,
   octahedrons,
   rotateSection,
+
 } = await usePyraminx(pyraminxRef as Ref<Group>, scene)
 
-function shuffle() {
-  setInterval(() => {
-    const section = ['U', 'u', 'L', 'l', 'R', 'r', 'B', 'b']
-    const randomSection = section[Math.floor(Math.random() * section.length)]
-    const clockwise = Math.random() < 0.5
-    rotateSection(randomSection, clockwise)
-  }, 1000)
-}
-
-const { shift, ctrl, l, r, u, b, s } = useMagicKeys()
-
-watch(l, (value) => {
-  if (value) {
-    rotateSection(ctrl.value ? 'l' : 'L', !shift.value)
-  }
-})
-
-watch(r, (value) => {
-  if (value) {
-    rotateSection(ctrl.value ? 'r' : 'R', !shift.value)
-  }
-})
-
-watch(u, (value) => {
-  if (value) {
-    rotateSection(ctrl.value ? 'u' : 'U', !shift.value)
-  }
-})
-
-watch(b, (value) => {
-  if (value) {
-    rotateSection(ctrl.value ? 'b' : 'B', !shift.value)
-  }
-})
-
-watch(s, (value) => {
-  if (value && pyraminxRef.value) {
-    shuffle()
-  }
-})
+useKeybindings(rotateSection)
 </script>
 
 <template>

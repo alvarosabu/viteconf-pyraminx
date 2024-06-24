@@ -2,7 +2,9 @@ import { useGLTF } from '@tresjs/cientos'
 import type { Scene } from 'three'
 import { Group, Matrix4, Quaternion, Vector3 } from 'three'
 import type { Ref } from 'vue'
-import { reactive, ref, toRaw } from 'vue'
+import { ref, toRaw } from 'vue'
+
+export type Face = 'LRB' | 'BUL' | 'ULR' | 'RBU'
 
 export async function usePyraminx(pyraminxRef: Ref<Group | null>, scene: Ref<Scene>) {
   // Feature: load models and setup materials
@@ -28,245 +30,202 @@ export async function usePyraminx(pyraminxRef: Ref<Group | null>, scene: Ref<Sce
   Object.values(tetrahedronMaterials).forEach(setupMaterial)
   Object.values(octahedronMaterials).forEach(setupMaterial)
 
-  // Feature update colors:
-  const initialColors = {
-    LRB: [
-      'yellow', // b-B
-      'yellow', // B
-      'yellow', // R-B
-      'yellow', // R
-      'yellow', // r-R
-      'yellow', // L-B
-      'yellow', // L
-      'yellow', // L-R
-      'yellow', // l-L
-    ],
-    BUL: [
-      'pink', // b-B
-      'pink', // B
-      'pink', // L-B
-      'pink', // L
-      'pink', // l-L
-      'pink', // U-B
-      'pink', // U
-      'pink', // U-L
-      'pink', // u-U
-    ],
-    ULR: [
-      'green', // l-L
-      'green', // L
-      'green', // L-R
-      'green', // R
-      'green', // r-R
-      'green', // U-L
-      'green', // U
-      'green', // U-R
-      'green', // u-U
-    ],
-    RBU: [
-      'purple', // r-R
-      'purple', // R
-      'purple', // R-B
-      'purple', // B
-      'purple', // b-B
-      'purple', // U-R
-      'purple', // U
-      'purple', // U-B
-      'purple', // u-U
-    ],
+  function cloneFaceColors(colors) {
+    return JSON.parse(JSON.stringify(colors))
   }
 
-  const currentColors = reactive({ ...initialColors })
+  function createColoredFace(color, positions) {
+    const face = {}
+    for (const position of positions) {
+      face[position] = color
+    }
+    return face
+  }
 
+  const initialColors = {
+    LRB: createColoredFace('yellow', [
+      'L', 'R', 'B', // CENTER
+      'Ll', 'Rr', 'Bb', // VERTICES
+      'LR', 'RB', 'BL', // EDGES
+    ]),
+    BUL: createColoredFace('pink', [
+      'B', 'U', 'L', // CENTER
+      'Bb', 'Uu', 'Ll', // VERTICES
+      'BU', 'UL', 'LB', // EDGES
+    ]),
+    ULR: createColoredFace('green', [
+      'U', 'L', 'R', // CENTER
+      'Uu', 'Ll', 'Rr', // VERTICES
+      'UL', 'LR', 'RU', // EDGES
+    ]),
+    RBU: createColoredFace('purple', [
+      'R', 'B', 'U', // CENTER
+      'Rr', 'Bb', 'Uu', // VERTICES
+      'RB', 'BU', 'UR', // EDGES
+    ]),
+  }
+
+  const currentColors = cloneFaceColors(initialColors)
+  
+  function getColor(face, position) {
+    return currentColors[face][position]
+  }
+  function assertPosition(face: Face, position: string) {
+    if (initialColors[face][position] === undefined) {
+      throw new Error(`${position} is not a valid position for face ${face}`)
+    }
+  }
+
+  /**
+   * Given a face, from what other face the color should be taken after rotation
+   */ 
+  const orderedFaces = {
+    L: ['LRB', 'ULR', 'BUL'],
+    R: ['RBU', 'ULR', 'LRB'],
+    B: ['BUL', 'RBU', 'LRB'],
+    U: ['ULR', 'RBU', 'BUL'],
+  }
+  function buildFromFaceMap(clockwise) {
+    const fromFaceMap = {}
+    for (const section of Object.keys(orderedFaces)) {
+      const ordered = orderedFaces[section.toUpperCase()]
+      fromFaceMap[section] = {}
+      for (const face of Object.keys(initialColors)) {
+        const k = ordered.indexOf(face)
+        fromFaceMap[section][face] = (k === -1) ? face : ordered[(k + 3 + (clockwise ? 1 : -1)) % 3]
+      }
+    }
+    return fromFaceMap
+  }
+  const cwFromFaceMap = buildFromFaceMap(true)
+  const ccwFromFaceMap = buildFromFaceMap(false)
+  function getFromFace(section, clockwise, face) {
+    return (clockwise ? cwFromFaceMap : ccwFromFaceMap)[section.toUpperCase()][face]
+  }
+
+  /**
+   * For center and vertices colors, the position names stay the same
+   * For edges, we need to map them to their new position after a rotation
+   */
+  const cwFromEdgesPositionMap = {
+    L: {
+      LRB: { // <- ULR
+        'LR': 'UL',
+        'BL': 'LR',
+      },
+      ULR: { // <- BUL
+        'UL': 'LB',
+        'LR': 'UL',
+      },
+      BUL: { // <- LRB
+        'LB': 'LR',
+        'UL': 'BL',
+      }
+    },
+    R: {
+      LRB: { // <- RBU
+        'LR': 'RB',
+        'RB': 'UR',
+      },
+      ULR: { // <- LRB
+        'RU': 'LR',
+        'LR': 'RB',
+      },
+      RBU: { // <- ULR
+        'RB': 'RU',
+        'UR': 'LR',
+      },
+    },
+    U: {
+      BUL: { // <- ULR
+        'BU': 'UL',
+        'UL': 'RU',
+      },
+      ULR: { // <- RBU
+        'UL': 'UR',
+        'RU': 'BU',
+      },
+      RBU: { // <- BUL
+        'UR': 'BU',
+        'BU': 'UL',
+      },
+    },
+    B: {
+      LRB: { // <- BUL
+        'BL': 'BU',
+        'RB': 'LB',
+      },
+      BUL: { // <- RBU
+        'BU': 'RB',
+        'LB': 'BU',
+      },
+      RBU: { // <- LRB
+        'BU': 'RB',
+        'RB': 'BL',
+      },
+    }
+  }
+  const ccwFromEdgesPositionMap = (function() {
+    const inverted = {}
+    for (const section of Object.keys(cwFromEdgesPositionMap)) {
+      inverted[section] = {}
+      const map = cwFromEdgesPositionMap[section]
+      for (const face of Object.keys(initialColors)) {
+        const cwFromFace = getFromFace(section, true, face)
+        if (map[face]) {
+          inverted[section][cwFromFace] ??= {}
+          for (const [cwPositionTo, cwPositionFrom] of Object.entries(map[face])) {
+            inverted[section][cwFromFace][cwPositionFrom] = cwPositionTo
+          }
+        }
+      }
+    }
+    return inverted
+  })()
+  function getFromEdgesPosition(section, clockwise, face, position) {
+    const fromEdgesPositionMap = clockwise ? cwFromEdgesPositionMap : ccwFromEdgesPositionMap
+    return fromEdgesPositionMap[section.toUpperCase()][face][position]
+  }
+
+  /**
+   * Given a face and triangle position, what is the triangle position in the next face
+   * that will end up in the same position after a rotation
+   */
+  function getFromFacePosition(section, clockwise, face, position) {    
+    assertPosition(face, position)
+    
+    // Positions are named after what section affects them
+    if (position[0] === section || position[1] === section) {
+      const fromFace = getFromFace(section, clockwise, face)
+      const fromEdgePosition = getFromEdgesPosition(section, clockwise, face, position)
+      if (fromEdgePosition) {
+        return [fromFace, fromEdgePosition]
+      }
+      return [fromFace, position]
+    }
+    else {
+      // This position is not affected by the rotation
+      return [face, position]
+    }
+  }
+   
+  function getFromColor(section, clockwise, face, position) {
+    return getColor(...getFromFacePosition(section, clockwise, face, position))
+  }
+  
   // Update colors after rotation
   function updateColors(section, clockwise) {
-    const temp = JSON.parse(JSON.stringify(currentColors))
-    if (section === 'l') {
-      // [base, left, right, back]
-      if (clockwise) {
-        currentColors.ULR[0] = temp.BUL[4]
-        currentColors.LRB[4] = temp.ULR[0]
-        currentColors.BUL[4] = temp.LRB[4]
-      }
-      else {
-        currentColors.ULR[0] = temp.LRB[4]
-        currentColors.LRB[4] = temp.BUL[4]
-        currentColors.BUL[4] = temp.ULR[0]
+    const prev = cloneFaceColors(currentColors)
+    for (const face of Object.keys(currentColors)) {
+      for (const position of Object.keys(currentColors[face])) {
+        const fromFacePosition = getFromFacePosition(section, clockwise, face, position)
+        const newColor = prev[fromFacePosition[0]][fromFacePosition[1]]
+        if (fromFacePosition[0] !== face) {
+          currentColors[face][position] = newColor
+        }
       }
     }
-    if (section === 'L') {
-      // [base, left, right, back]
-      if (clockwise) {
-        currentColors.ULR[0] = temp.BUL[4]
-        currentColors.ULR[1] = temp.BUL[3]
-        currentColors.ULR[2] = temp.BUL[5]
-        currentColors.ULR[5] = temp.BUL[2]
-        currentColors.LRB[4] = temp.ULR[0]
-        currentColors.LRB[3] = temp.ULR[1]
-        currentColors.LRB[7] = temp.ULR[2]
-        currentColors.LRB[2] = temp.ULR[5]
-        currentColors.BUL[4] = temp.LRB[4]
-        currentColors.BUL[3] = temp.LRB[3]
-        currentColors.BUL[7] = temp.LRB[7]
-        currentColors.BUL[2] = temp.LRB[2]
-      }
-      else {
-        currentColors.ULR[0] = temp.LRB[4]
-        currentColors.ULR[1] = temp.LRB[3]
-        currentColors.ULR[2] = temp.LRB[7]
-        currentColors.ULR[5] = temp.LRB[2]
-        currentColors.LRB[4] = temp.BUL[4]
-        currentColors.LRB[3] = temp.BUL[3]
-        currentColors.LRB[7] = temp.BUL[7]
-        currentColors.LRB[2] = temp.BUL[2]
-        currentColors.BUL[4] = temp.ULR[0]
-        currentColors.BUL[3] = temp.ULR[1]
-        currentColors.BUL[7] = temp.ULR[2]
-        currentColors.BUL[2] = temp.ULR[5]
-      }
-    }
-    if (section === 'r') {
-      // [base, left, right, back]
-      if (clockwise) {
-        currentColors.ULR[4] = temp.LRB[0]
-        currentColors.RBU[0] = temp.ULR[4]
-        currentColors.LRB[0] = temp.RBU[0]
-      }
-      else {
-        currentColors.ULR[4] = temp.RBU[0]
-        currentColors.RBU[0] = temp.LRB[0]
-        currentColors.LRB[0] = temp.ULR[4]
-      }
-    }
-    if (section === 'R') {
-      // [base, left, right, back]
-      if (clockwise) {
-        currentColors.ULR[4] = temp.LRB[0]
-        currentColors.ULR[3] = temp.LRB[1]
-        currentColors.ULR[7] = temp.LRB[2]
-        currentColors.ULR[2] = temp.LRB[5]
-        currentColors.LRB[0] = temp.RBU[0]
-        currentColors.LRB[1] = temp.RBU[1]
-        currentColors.LRB[2] = temp.RBU[2]
-        currentColors.LRB[5] = temp.RBU[5]
-        currentColors.RBU[0] = temp.ULR[4]
-        currentColors.RBU[1] = temp.ULR[3]
-        currentColors.RBU[2] = temp.ULR[7]
-        currentColors.RBU[5] = temp.ULR[2]
-      }
-      else {
-        currentColors.ULR[4] = temp.RBU[0]
-        currentColors.ULR[3] = temp.RBU[1]
-        currentColors.ULR[7] = temp.RBU[2]
-        currentColors.ULR[2] = temp.RBU[5]
-        currentColors.LRB[0] = temp.ULR[4]
-        currentColors.LRB[1] = temp.ULR[3]
-        currentColors.LRB[2] = temp.ULR[7]
-        currentColors.LRB[5] = temp.ULR[2]
-        currentColors.RBU[0] = temp.LRB[0]
-        currentColors.RBU[1] = temp.LRB[1]
-        currentColors.RBU[2] = temp.LRB[2]
-        currentColors.RBU[5] = temp.LRB[5]
-      }
-    }
-    if (section === 'u') {
-      // [base, left, right, back]
-      if (clockwise) {
-        currentColors.BUL[8] = temp.ULR[8]
-        currentColors.RBU[8] = temp.BUL[8]
-        currentColors.ULR[8] = temp.RBU[8]
-      }
-      else {
-        currentColors.BUL[8] = temp.RBU[8]
-        currentColors.RBU[8] = temp.ULR[8]
-        currentColors.ULR[8] = temp.BUL[8]
-      }
-    }
-
-    if (section === 'U') {
-      if (clockwise) {
-        currentColors.BUL[8] = temp.ULR[8]
-        currentColors.BUL[7] = temp.ULR[7]
-        currentColors.BUL[6] = temp.ULR[6]
-        currentColors.BUL[5] = temp.ULR[5]
-        currentColors.RBU[8] = temp.BUL[8]
-        currentColors.RBU[7] = temp.BUL[7]
-        currentColors.RBU[6] = temp.BUL[6]
-        currentColors.RBU[5] = temp.BUL[5]
-        currentColors.ULR[8] = temp.RBU[8]
-        currentColors.ULR[7] = temp.RBU[7]
-        currentColors.ULR[6] = temp.RBU[6]
-        currentColors.ULR[5] = temp.RBU[5]
-      }
-      else {
-        currentColors.BUL[8] = temp.RBU[8]
-        currentColors.BUL[7] = temp.RBU[7]
-        currentColors.BUL[6] = temp.RBU[6]
-        currentColors.BUL[5] = temp.RBU[5]
-        currentColors.RBU[8] = temp.ULR[8]
-        currentColors.RBU[7] = temp.ULR[7]
-        currentColors.RBU[6] = temp.ULR[6]
-        currentColors.RBU[5] = temp.ULR[5]
-        currentColors.ULR[8] = temp.BUL[8]
-        currentColors.ULR[7] = temp.BUL[7]
-        currentColors.ULR[6] = temp.BUL[6]
-        currentColors.ULR[5] = temp.BUL[5]
-      }
-    }
-
-    if (section === 'b') {
-      if (clockwise) {
-        currentColors.LRB[8] = temp.BUL[0]
-        currentColors.RBU[4] = temp.LRB[8]
-        currentColors.BUL[0] = temp.RBU[4]
-      }
-      else {
-        currentColors.LRB[8] = temp.RBU[4]
-        currentColors.RBU[4] = temp.BUL[0]
-        currentColors.BUL[0] = temp.LRB[8]
-      }
-    }
-
-    if (section === 'B') {
-      if (clockwise) {
-        currentColors.LRB[8] = temp.BUL[0]
-        currentColors.LRB[7] = temp.BUL[5]
-        currentColors.LRB[6] = temp.BUL[1]
-        currentColors.LRB[5] = temp.BUL[2]
-        currentColors.RBU[4] = temp.LRB[8]
-        currentColors.RBU[2] = temp.LRB[7]
-        currentColors.RBU[3] = temp.LRB[6]
-        currentColors.RBU[7] = temp.LRB[5]
-        currentColors.BUL[0] = temp.RBU[4]
-        currentColors.BUL[1] = temp.RBU[3]
-        currentColors.BUL[2] = temp.RBU[7]
-        currentColors.BUL[5] = temp.RBU[2]
-      }
-      else {
-        currentColors.LRB[8] = temp.RBU[4]
-        currentColors.LRB[7] = temp.RBU[2]
-        currentColors.LRB[6] = temp.RBU[3]
-        currentColors.LRB[5] = temp.RBU[7]
-        currentColors.RBU[4] = temp.BUL[0]
-        currentColors.RBU[2] = temp.BUL[5]
-        currentColors.RBU[3] = temp.BUL[1]
-        currentColors.RBU[7] = temp.BUL[2]
-        currentColors.BUL[0] = temp.LRB[8]
-        currentColors.BUL[1] = temp.LRB[6]
-        currentColors.BUL[2] = temp.LRB[7]
-        currentColors.BUL[5] = temp.LRB[5]
-      }
-    }
-    console.log(currentColors)
-  }
-
-  function getCurrentColorOrientation() {
-    return {
-      LRB: currentColors.LRB, // Base
-      BUL: currentColors.BUL, // Left
-      ULR: currentColors.ULR,
-      RBU: currentColors.RBU,
-    }
+    console.log(cloneFaceColors(currentColors))
   }
 
   // Feature: Pyraminx rotation logic
@@ -557,11 +516,14 @@ export async function usePyraminx(pyraminxRef: Ref<Group | null>, scene: Ref<Sce
   return {
     tetrahedronNodes,
     octahedronNodes,
-    currentColors,
-    updateColors,
-    getCurrentColorOrientation,
+    
     tetrahedrons,
     octahedrons,
+    
+    getFromFacePosition,
+    getFromColor,    
+    getColor,
+    
     rotateSection,
   }
 }
