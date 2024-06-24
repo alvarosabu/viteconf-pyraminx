@@ -16,13 +16,22 @@ const {
   // Models
   tetrahedronNodes,
   octahedronNodes,
+  
   // Color logic
-  /* currentColors,
-  getCurrentColorOrientation, */
+  getIndex,
+  getPositionAt,
+  getFromFace,
+  getFromPosition,
+  getFromColor,
+  getFromColorAt,
+  getColor,
+  getColorAt,
+
   // Pyraminx logic
   tetrahedrons,
   octahedrons,
   rotateSection,
+  
 } = await usePyraminx(pyraminxRef as Ref<Group>, scene)
 
 function shuffle() {

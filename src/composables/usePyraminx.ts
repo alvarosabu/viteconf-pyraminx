@@ -2,7 +2,9 @@ import { useGLTF } from '@tresjs/cientos'
 import type { Scene } from 'three'
 import { Group, Matrix4, Quaternion, Vector3 } from 'three'
 import type { Ref } from 'vue'
-import { reactive, ref, toRaw } from 'vue'
+import { ref, toRaw } from 'vue'
+
+export type Face = 'LRB' | 'BUL' | 'ULR' | 'RBU'
 
 export async function usePyraminx(pyraminxRef: Ref<Group | null>, scene: Ref<Scene>) {
   // Feature: load models and setup materials
@@ -28,322 +30,202 @@ export async function usePyraminx(pyraminxRef: Ref<Group | null>, scene: Ref<Sce
   Object.values(tetrahedronMaterials).forEach(setupMaterial)
   Object.values(octahedronMaterials).forEach(setupMaterial)
 
-  // Feature update colors:
-  const initialColors = {
-    LRB: {
-      // Center
-      L: 'yellow',
-      R: 'yellow',
-      B: 'yellow',
-      
-      // Vertices
-      Ll: 'yellow',
-      Rr: 'yellow',
-      Bb: 'yellow',
-      
-      // Edges
-      LR: 'yellow',
-      RB: 'yellow',
-      BL: 'yellow',
-    },
-    BUL: {
-      // Center
-      B: 'pink',
-      U: 'pink',
-      L: 'pink',
-
-      // Vertices
-      Bb: 'pink',
-      Uu: 'pink',
-      Ll: 'pink',
-
-      // Edges
-      BU: 'pink',
-      UL: 'pink',
-      LB: 'pink',
-    },
-    ULR: {
-      // Center
-      U: 'green',
-      L: 'green',
-      R: 'green',
-      
-      // Vertices
-      Uu: 'green',
-      Ll: 'green',
-      Rr: 'green',
-
-      // Edges
-      UL: 'green',
-      LR: 'green',
-      RU: 'green',
-    },
-    RBU: {
-      // Center
-      R: 'purple',
-      B: 'purple',
-      U: 'purple',
-
-      // Vertices
-      Rr: 'purple',
-      Bb: 'purple',
-      Uu: 'purple',
-
-      // Edges
-      RB: 'purple',
-      BU: 'purple',
-      UR: 'purple',
-    },
+  function cloneFaceColors(colors) {
+    return JSON.parse(JSON.stringify(colors))
   }
 
-  const currentColors = reactive({ ...initialColors })
+  function createColoredFace(color, positions) {
+    const face = {}
+    for (const position of positions) {
+      face[position] = color
+    }
+    return face
+  }
 
+  const initialColors = {
+    LRB: createColoredFace('yellow', [
+      'L', 'R', 'B', // CENTER
+      'Ll', 'Rr', 'Bb', // VERTICES
+      'LR', 'RB', 'BL', // EDGES
+    ]),
+    BUL: createColoredFace('pink', [
+      'B', 'U', 'L', // CENTER
+      'Bb', 'Uu', 'Ll', // VERTICES
+      'BU', 'UL', 'LB', // EDGES
+    ]),
+    ULR: createColoredFace('green', [
+      'U', 'L', 'R', // CENTER
+      'Uu', 'Ll', 'Rr', // VERTICES
+      'UL', 'LR', 'RU', // EDGES
+    ]),
+    RBU: createColoredFace('purple', [
+      'R', 'B', 'U', // CENTER
+      'Rr', 'Bb', 'Uu', // VERTICES
+      'RB', 'BU', 'UR', // EDGES
+    ]),
+  }
+
+  const currentColors = cloneFaceColors(initialColors)
+  
+  function getColor(face, position) {
+    return currentColors[face][position]
+  }
+  function assertPosition(face: Face, position: string) {
+    if (initialColors[face][position] === undefined) {
+      throw new Error(`${position} is not a valid position for face ${face}`)
+    }
+  }
+
+  /**
+   * Given a face, from what other face the color should be taken after rotation
+   */ 
+  const orderedFaces = {
+    L: ['LRB', 'ULR', 'BUL'],
+    R: ['RBU', 'ULR', 'LRB'],
+    B: ['BUL', 'RBU', 'LRB'],
+    U: ['ULR', 'RBU', 'BUL'],
+  }
+  function buildFromFaceMap(clockwise) {
+    const fromFaceMap = {}
+    for (const section of Object.keys(orderedFaces)) {
+      const ordered = orderedFaces[section.toUpperCase()]
+      fromFaceMap[section] = {}
+      for (const face of Object.keys(initialColors)) {
+        const k = ordered.indexOf(face)
+        fromFaceMap[section][face] = (k === -1) ? face : ordered[(k + 3 + (clockwise ? 1 : -1)) % 3]
+      }
+    }
+    return fromFaceMap
+  }
+  const cwFromFaceMap = buildFromFaceMap(true)
+  const ccwFromFaceMap = buildFromFaceMap(false)
+  function getFromFace(section, clockwise, face) {
+    return (clockwise ? cwFromFaceMap : ccwFromFaceMap)[section.toUpperCase()][face]
+  }
+
+  /**
+   * For center and vertices colors, the position names stay the same
+   * For edges, we need to map them to their new position after a rotation
+   */
+  const cwFromEdgesPositionMap = {
+    L: {
+      LRB: { // <- ULR
+        'LR': 'UL',
+        'BL': 'LR',
+      },
+      ULR: { // <- BUL
+        'UL': 'LB',
+        'LR': 'UL',
+      },
+      BUL: { // <- LRB
+        'LB': 'LR',
+        'UL': 'BL',
+      }
+    },
+    R: {
+      LRB: { // <- RBU
+        'LR': 'RB',
+        'RB': 'UR',
+      },
+      ULR: { // <- LRB
+        'RU': 'LR',
+        'LR': 'RB',
+      },
+      RBU: { // <- ULR
+        'RB': 'RU',
+        'UR': 'LR',
+      },
+    },
+    U: {
+      BUL: { // <- ULR
+        'BU': 'UL',
+        'UL': 'RU',
+      },
+      ULR: { // <- RBU
+        'UL': 'UR',
+        'RU': 'BU',
+      },
+      RBU: { // <- BUL
+        'UR': 'BU',
+        'BU': 'UL',
+      },
+    },
+    B: {
+      LRB: { // <- BUL
+        'BL': 'BU',
+        'RB': 'LB',
+      },
+      BUL: { // <- RBU
+        'BU': 'RB',
+        'LB': 'BU',
+      },
+      RBU: { // <- LRB
+        'BU': 'RB',
+        'RB': 'BL',
+      },
+    }
+  }
+  const ccwFromEdgesPositionMap = (function() {
+    const inverted = {}
+    for (const section of Object.keys(cwFromEdgesPositionMap)) {
+      inverted[section] = {}
+      const map = cwFromEdgesPositionMap[section]
+      for (const face of Object.keys(initialColors)) {
+        const cwFromFace = getFromFace(section, true, face)
+        if (map[face]) {
+          inverted[section][cwFromFace] ??= {}
+          for (const [cwPositionTo, cwPositionFrom] of Object.entries(map[face])) {
+            inverted[section][cwFromFace][cwPositionFrom] = cwPositionTo
+          }
+        }
+      }
+    }
+    return inverted
+  })()
+  function getFromEdgesPosition(section, clockwise, face, position) {
+    const fromEdgesPositionMap = clockwise ? cwFromEdgesPositionMap : ccwFromEdgesPositionMap
+    return fromEdgesPositionMap[section.toUpperCase()][face][position]
+  }
+
+  /**
+   * Given a face and triangle position, what is the triangle position in the next face
+   * that will end up in the same position after a rotation
+   */
+  function getFromFacePosition(section, clockwise, face, position) {    
+    assertPosition(face, position)
+    
+    // Positions are named after what section affects them
+    if (position[0] === section || position[1] === section) {
+      const fromFace = getFromFace(section, clockwise, face)
+      const fromEdgePosition = getFromEdgesPosition(section, clockwise, face, position)
+      if (fromEdgePosition) {
+        return [fromFace, fromEdgePosition]
+      }
+      return [fromFace, position]
+    }
+    else {
+      // This position is not affected by the rotation
+      return [face, position]
+    }
+  }
+   
+  function getFromColor(section, clockwise, face, position) {
+    return getColor(...getFromFacePosition(section, clockwise, face, position))
+  }
+  
   // Update colors after rotation
   function updateColors(section, clockwise) {
-    const temp = JSON.parse(JSON.stringify(currentColors))
-    if (section === 'l') {
-      if (clockwise) {
-        // LRB <- ULR <- BUL
-
-        currentColors.LRB.Ll = temp.ULR.Ll
-        
-        currentColors.ULR.Ll = temp.BUL.Ll
-        
-        currentColors.BUL.Ll = temp.LRB.Ll
-      }
-      else {
-        // LRB <- BUL <- ULR
-        
-        currentColors.LRB.Ll = temp.BUL.Ll
-        
-        currentColors.BUL.Ll = temp.ULR.Ll
-        
-        currentColors.ULR.Ll = temp.LRB.Ll
+    const prev = cloneFaceColors(currentColors)
+    for (const face of Object.keys(currentColors)) {
+      for (const position of Object.keys(currentColors[face])) {
+        const fromFacePosition = getFromFacePosition(section, clockwise, face, position)
+        const newColor = prev[fromFacePosition[0]][fromFacePosition[1]]
+        if (fromFacePosition[0] !== face) {
+          currentColors[face][position] = newColor
+        }
       }
     }
-    if (section === 'L') {
-      if (clockwise) {
-        // LRB <- ULR <- BUL
-        
-        currentColors.LRB.L = temp.ULR.L
-        currentColors.LRB.Ll = temp.ULR.Ll
-        currentColors.LRB.LR = temp.ULR.UL
-        currentColors.LRB.BL = temp.ULR.LR
-        
-        currentColors.ULR.L = temp.BUL.L
-        currentColors.ULR.Ll = temp.BUL.Ll
-        currentColors.ULR.UL = temp.BUL.LB
-        currentColors.ULR.LR = temp.BUL.UL
-        
-        currentColors.BUL.L = temp.LRB.L
-        currentColors.BUL.Ll = temp.LRB.Ll
-        currentColors.BUL.LB = temp.LRB.LR
-        currentColors.BUL.UL = temp.LRB.BL
-      }
-      else {
-        // LRB <- BUL <- ULR
-
-        currentColors.LRB.L = temp.BUL.L
-        currentColors.LRB.Ll = temp.BUL.Ll
-        currentColors.LRB.LR = temp.BUL.LB
-        currentColors.LRB.BL = temp.BUL.UL
-        
-        currentColors.BUL.L = temp.ULR.L
-        currentColors.BUL.Ll = temp.ULR.Ll
-        currentColors.BUL.LB = temp.ULR.UL
-        currentColors.BUL.UL = temp.ULR.LR
-        
-        currentColors.ULR.L = temp.LRB.L
-        currentColors.ULR.Ll = temp.LRB.Ll
-        currentColors.ULR.UL = temp.LRB.LR
-        currentColors.ULR.LR = temp.LRB.BL
-      }
-    }
-    if (section === 'r') {
-      if (clockwise) {
-        // RBU <- ULR <- LRB
-
-        currentColors.RBU.Rr = temp.ULR.Rr
-        
-        currentColors.ULR.Rr = temp.LRB.Rr
-
-        currentColors.LRB.Rr = temp.RBU.Rr
-      }
-      else {
-        // RBU <- LRB <- ULR
-
-        currentColors.RBU.Rr = temp.LRB.Rr
-        
-        currentColors.LRB.Rr = temp.ULR.Rr
-        
-        currentColors.ULR.Rr = temp.RBU.Rr
-      }
-    }
-    if (section === 'R') {
-      if (clockwise) {
-        // RBU <- ULR <- LRB
-
-        currentColors.RBU.R = temp.ULR.R
-        currentColors.RBU.Rr = temp.ULR.Rr
-        currentColors.RBU.RB = temp.ULR.RU
-        currentColors.RBU.UR = temp.ULR.LR
-
-        currentColors.ULR.R = temp.LRB.R
-        currentColors.ULR.Rr = temp.LRB.Rr
-        currentColors.ULR.RU = temp.LRB.LR
-        currentColors.ULR.LR = temp.LRB.RB
-
-        currentColors.LRB.R = temp.RBU.R
-        currentColors.LRB.Rr = temp.RBU.Rr
-        currentColors.LRB.RB = temp.RBU.UR
-        currentColors.LRB.LR = temp.RBU.RB
-      }
-      else {
-        // RBU <- LRB <- ULR
-
-        currentColors.RBU.R = temp.LRB.R
-        currentColors.RBU.Rr = temp.LRB.Rr
-        currentColors.RBU.RB = temp.LRB.LR
-        currentColors.RBU.UR = temp.LRB.RB
-        
-        currentColors.LRB.R = temp.ULR.R
-        currentColors.LRB.Rr = temp.ULR.Rr
-        currentColors.LRB.RB = temp.ULR.LR
-        currentColors.LRB.LR = temp.ULR.RU
-        
-        currentColors.ULR.R = temp.RBU.R
-        currentColors.ULR.Rr = temp.RBU.Rr
-        currentColors.ULR.RU = temp.RBU.RB
-        currentColors.ULR.LR = temp.RBU.UR
-      }
-    }
-    if (section === 'u') {
-      if (clockwise) {
-        // ULR <- RBU <- BUL
-
-        currentColors.ULR.Uu = temp.RBU.Uu
-        
-        currentColors.RBU.Uu = temp.BUL.Uu
-
-        currentColors.BUL.Uu = temp.ULR.Uu
-      }
-      else {
-        // ULR <- BUL <- RBU
-
-        currentColors.ULR.Uu = temp.BUL.Uu
-
-        currentColors.BUL.Uu = temp.RBU.Uu
-        
-        currentColors.RBU.Uu = temp.ULR.Uu
-      }
-    }
-    if (section === 'U') {
-      if (clockwise) {
-        // ULR <- RBU <- BUL
-
-        currentColors.ULR.U = temp.RBU.U
-        currentColors.ULR.Uu = temp.RBU.Uu
-        currentColors.ULR.UL = temp.RBU.UR
-        currentColors.ULR.RU = temp.RBU.BU
-        
-        currentColors.RBU.U = temp.BUL.U
-        currentColors.RBU.Uu = temp.BUL.Uu
-        currentColors.RBU.UR = temp.BUL.BU
-        currentColors.RBU.BU = temp.BUL.UL
-        
-        currentColors.BUL.U = temp.ULR.U
-        currentColors.BUL.Uu = temp.ULR.Uu
-        currentColors.BUL.UL = temp.ULR.RU
-        currentColors.BUL.BU = temp.ULR.UL
-      }
-      else {
-        // ULR <- BUL <- RBU
-
-        currentColors.ULR.U = temp.BUL.U
-        currentColors.ULR.Uu = temp.BUL.Uu
-        currentColors.ULR.UL = temp.BUL.LB
-        currentColors.ULR.RU = temp.BUL.UL
-        
-        currentColors.BUL.U = temp.RBU.U
-        currentColors.BUL.Uu = temp.RBU.Uu
-        currentColors.BUL.UL = temp.RBU.BU
-        currentColors.BUL.BU = temp.RBU.UR
-        
-        currentColors.RBU.U = temp.ULR.U
-        currentColors.RBU.Uu = temp.ULR.Uu
-        currentColors.RBU.UR = temp.ULR.UL
-        currentColors.RBU.BU = temp.ULR.RU
-      }
-    }
-
-    if (section === 'b') {
-      if (clockwise) {
-        // BUL <- RBU <- LRB
-
-        currentColors.BUL.Bb = temp.RBU.Bb
-
-        currentColors.RBU.Bb = temp.LRB.Bb
-
-        currentColors.LRB.Bb = temp.BUL.Bb
-      }
-      else {
-        // BUL <- LRB <- RBU
-
-        currentColors.BUL.Bb = temp.LRB.Bb
-        
-        currentColors.LRB.Bb = temp.RBU.Bb
-
-        currentColors.RBU.Bb = temp.BUL.Bb
-      }
-    }
-    if (section === 'B') {
-      if (clockwise) {
-        // BUL <- RBU <- LRB
-
-        currentColors.BUL.B = temp.RBU.B
-        currentColors.BUL.Bb = temp.RBU.Bb
-        currentColors.BUL.BU = temp.RBU.RB
-        currentColors.BUL.LB = temp.RBU.BU
-
-        currentColors.RBU.B = temp.LRB.B
-        currentColors.RBU.Bb = temp.LRB.Bb
-        currentColors.RBU.BU = temp.LRB.RB
-        currentColors.RBU.RB = temp.LRB.BL
-        
-        currentColors.LRB.B = temp.BUL.B
-        currentColors.LRB.Bb = temp.BUL.Bb
-        currentColors.LRB.BL = temp.BUL.BU
-        currentColors.LRB.RB = temp.BUL.LB
-      }
-      else {
-        // BUL <- LRB <- RBU
-
-        currentColors.BUL.B = temp.LRB.B
-        currentColors.BUL.Bb = temp.LRB.Bb
-        currentColors.BUL.BU = temp.LRB.BL
-        currentColors.BUL.LB = temp.LRB.RB
-
-        currentColors.LRB.B = temp.RBU.B
-        currentColors.LRB.Bb = temp.RBU.Bb
-        currentColors.LRB.BL = temp.RBU.RB
-        currentColors.LRB.RB = temp.RBU.BU
-        
-        currentColors.RBU.B = temp.BUL.B
-        currentColors.RBU.Bb = temp.BUL.Bb
-        currentColors.RBU.BU = temp.BUL.LB
-        currentColors.RBU.RB = temp.BUL.BU
-      }
-    }
-    console.log(currentColors)
-  }
-
-  function getCurrentColorOrientation() {
-    return {
-      LRB: currentColors.LRB, // Base
-      BUL: currentColors.BUL, // Left
-      ULR: currentColors.ULR,
-      RBU: currentColors.RBU,
-    }
+    console.log(cloneFaceColors(currentColors))
   }
 
   // Feature: Pyraminx rotation logic
@@ -634,11 +516,14 @@ export async function usePyraminx(pyraminxRef: Ref<Group | null>, scene: Ref<Sce
   return {
     tetrahedronNodes,
     octahedronNodes,
-    currentColors,
-    updateColors,
-    getCurrentColorOrientation,
+    
     tetrahedrons,
     octahedrons,
+    
+    getFromFacePosition,
+    getFromColor,    
+    getColor,
+    
     rotateSection,
   }
 }
