@@ -10,6 +10,7 @@ import Octahedron from './Octahedron.vue'
 import { useSolver } from '../composables/useSolver.js'
 
 const pyraminxRef = ref<Group | null>()
+const autoSolve = ref(true)
 
 const { scene } = useTres()
 const {
@@ -33,11 +34,11 @@ onMounted(() => {
     pyramid.rotateSection(Math.random() > 0.7 ? section.toLocaleLowerCase() : section, Math.random() > 0.5, 200)
   }
   setTimeout(() => {
-    useSolver(pyramid)
+    useSolver(pyramid, autoSolve)
   }, 3000)
 })
 
-useKeybindings(pyramid.rotateSection)
+useKeybindings(pyramid.rotateSection, autoSolve)
 </script>
 
 <template>
