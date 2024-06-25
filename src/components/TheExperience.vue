@@ -1,9 +1,25 @@
 <script setup lang="ts">
 import { Bloom, EffectComposer } from '@tresjs/post-processing'
-import { reactive } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { BlendFunction, KernelSize } from 'postprocessing'
 import Pyraminx from './Pyraminx.vue'
 import OrbitControls from './OrbitControls.vue'
+
+const interval = 100
+const toSpeed = 5
+const fromSpeed = -5
+
+const autoRotateSpeed = ref(fromSpeed)
+onMounted(() => {
+  const animateRotation = setInterval(() => {
+    let newValue = autoRotateSpeed.value + (toSpeed-fromSpeed) * ( interval / 3000 )
+    if (newValue >= toSpeed) {
+      newValue = toSpeed
+      clearInterval(animateRotation)
+    }
+    autoRotateSpeed.value = newValue
+  }, interval)
+})
 
 const bloomParams = reactive({
   threshold: 2,
@@ -20,7 +36,7 @@ const bloomParams = reactive({
   <TresPerspectiveCamera :zoom="2.1" :position="[-6, -3, 6]" :up="[0, -1, 0]" />
   <OrbitControls
     :autoRotate="true"
-    :autoRotateSpeed="1"
+    :autoRotateSpeed="autoRotateSpeed"
     :enablePan="false"
     :enableZoom="false"
   />
@@ -29,7 +45,7 @@ const bloomParams = reactive({
     color="red"
   />
   <Suspense>
-    <Pyraminx />
+    <Pyraminx/>
   </Suspense>
   <Suspense>
     <EffectComposer

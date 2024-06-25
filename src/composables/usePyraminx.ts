@@ -2,7 +2,7 @@ import { useGLTF } from '@tresjs/cientos'
 import type { Scene } from 'three'
 import { Group, Matrix4, Quaternion, Vector3 } from 'three'
 import type { Ref } from 'vue'
-import { ref, toRaw } from 'vue'
+import { ref, watch, toRaw } from 'vue'
 
 export type Face = 'LRB' | 'BUL' | 'ULR' | 'RBU'
 
@@ -505,11 +505,45 @@ export async function usePyraminx(pyraminxRef: Ref<Group | null>, scene: Ref<Sce
     b: new Vector3(0, -0.3342110415830142, -0.9424982650827517),
   }
 
-  function rotateSection(section: string, clockwise = true, duration = 1000) {
-    const angle = clockwise ? -2 * Math.PI / 3 : 2 * Math.PI / 3
-    const objects = pyraminxRef?.value?.children.filter(child => child.userData.groups.some(group => section.includes(group)))
-    if (!isRotating.value) {
-      rotateSectionAnimate(objects, rotationAxisMap[section], angle, duration, section)
+  const rotateSectionQueue = []
+
+  function rotateSection(section: string, clockwise = true, duration = 750) {
+    rotateSectionQueue.push({ section, clockwise, duration })
+    if (isRotating.value) {
+      return
+    }
+    else {
+      processRotateSectionQueue()
+    }
+  }
+  let gettingReadyTimeout: number | undefined
+  function processRotateSectionQueue() {
+    if (gettingReadyTimeout) {
+      return
+    }
+    const ready = !!pyraminxRef?.value?.children?.[0].userData?.groups
+    if (ready) {
+      doRotateSection(rotateSectionQueue.shift())
+    }
+    else {
+      gettingReadyTimeout = setTimeout(() => {
+        gettingReadyTimeout = undefined
+        processRotateSectionQueue()
+      }, 100)
+    }
+  }
+
+  watch(isRotating, (value) => {
+    if (!value && rotateSectionQueue.length) {
+      processRotateSectionQueue()
+    }
+  })
+
+  function doRotateSection(rotation: { section: string, clockwise: boolean, duration: number }) {
+    const angle = rotation.clockwise ? -2 * Math.PI / 3 : 2 * Math.PI / 3
+    const objects = pyraminxRef?.value?.children.filter(child => child.userData?.groups?.some(group => rotation.section.includes(group)))
+    if (objects?.length) {
+      rotateSectionAnimate(objects, rotationAxisMap[rotation.section], angle, rotation.duration, rotation.section)
     }
   }
 
@@ -520,10 +554,12 @@ export async function usePyraminx(pyraminxRef: Ref<Group | null>, scene: Ref<Sce
     tetrahedrons,
     octahedrons,
     
-    getFromFacePosition,
-    getFromColor,    
-    getColor,
-    
-    rotateSection,
+    pyramid: {
+      getFromFacePosition,
+      getFromColor,    
+      getColor,
+      colors: currentColors,
+      rotateSection,
+    }
   }
 }
