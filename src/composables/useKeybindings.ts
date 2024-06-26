@@ -10,7 +10,7 @@ export function useKeybindings(rotateSection, autoSolve) {
                 const k = event.key.toUpperCase()
                 if (k === 'L' || k === 'R' || k === 'U' || k === 'B') {
                     autoSolve.value = false
-                    rotateSection(event.altKey ? k.toLowerCase() : k, event.shiftKey)
+                    rotateSection(event.shiftKey ? k : k.toLowerCase(), true);
                 }
                 if (k === 'S') {
                     autoSolve.value = !autoSolve.value
