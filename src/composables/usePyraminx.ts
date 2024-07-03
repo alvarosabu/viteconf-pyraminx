@@ -1,6 +1,6 @@
 import { useGLTF } from '@tresjs/cientos'
 import type { Scene } from 'three'
-import { Group, Matrix4, Quaternion, Vector3 } from 'three'
+import { Color, Group, Matrix4, Quaternion, Vector3 } from 'three'
 import type { Ref } from 'vue'
 import { ref, watch, toRaw } from 'vue'
 
@@ -17,10 +17,11 @@ export async function usePyraminx(pyraminxRef: Ref<Group | null>, scene: Ref<Sce
     material.opacity = 1
     material.transparent = true
     if (material.name === 'NeonFucsia') {
-      material.emissiveIntensity = 1.5 * emissiveIntensity
+      material.emissive = new Color('#61b4fa') // cyan
+      material.emissiveIntensity = 1.25 * emissiveIntensity
     }
     else if (material.name === 'NeonPurple') {
-      material.emissiveIntensity = 3 * emissiveIntensity
+      material.emissiveIntensity = 2.7 * emissiveIntensity
     }
     else {
       material.emissiveIntensity = emissiveIntensity
@@ -550,7 +551,8 @@ export async function usePyraminx(pyraminxRef: Ref<Group | null>, scene: Ref<Sce
   return {
     tetrahedronNodes,
     octahedronNodes,
-    
+    tetrahedronMaterials,
+    octahedronMaterials,
     tetrahedrons,
     octahedrons,
     
