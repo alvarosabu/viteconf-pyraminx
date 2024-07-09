@@ -49,7 +49,7 @@
 		{
 			"doubleSided":true,
 			"emissiveFactor":[
-				0.9581592082977295,
+				0.1581592082977295,
 				0.14765959978103638,
 				1
 			],
@@ -58,7 +58,7 @@
 					"emissiveStrength":2
 				}
 			},
-			"name":"NeonFucsia",
+			"name":"NeonBlue",
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
 					0,

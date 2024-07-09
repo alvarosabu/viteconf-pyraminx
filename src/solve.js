@@ -3,33 +3,40 @@
 // pyramid.
 //   colors -> { face: { position: Color }}
 //   getColor(face, position) -> Color
-//   getFromColor(section, clockwise, face, position) -> Color
-//   getFromFacePosition(section, clockwise, face, position)
-//     -> [face, position]
-//   rotateSection(section, clockwise)
+//   getFromColor(section, cw, face, position) -> Color
+//   getFromFacePosition(section, cw, face, position) -> [face, position]
+//   doMove(section, cw)
 
 const positions = {
-    //     CENTER           VERTICES            EDGES
-    LRB: [ 'L', 'R', 'B',   'Ll', 'Rr', 'Bb',   'LR', 'RB', 'BL' ],
-    BUL: [ 'B', 'U', 'L',   'Bb', 'Uu', 'Ll',   'BU', 'UL', 'LB' ],
-    ULR: [ 'U', 'L', 'R',   'Uu', 'Ll', 'Rr',   'UL', 'LR', 'RU' ],
-    RBU: [ 'R', 'B', 'U',   'Rr', 'Bb', 'Uu',   'RB', 'BU', 'UR' ],
-  };
-  const faces = [ 'LRB', 'BUL', 'ULR', 'RBU' ];
-  const colors = [ 'yellow', 'pink', 'green', 'purple' ];
-  const rotations = [ 'U', 'u', 'L', 'l', 'R', 'r', 'B', 'b' ];
-  
-  export function solve(pyramid) {
-    const fromLlColor = pyramid.getFromColor('l', true, 'LRB', 'Ll')
-    if (pyramid.colors['LRB']['L'] === fromLlColor) {
-      // Rotate the Ll vertex if it matches the color of the LRB.L center 
-      pyramid.rotateSection('l', true)
-    }
-    else {
-      const section = rotations[
-        Math.floor(Math.random() * rotations.length)
-      ];
-      const clockwise = Math.random() > 0.5;
-      pyramid.rotateSection(section, clockwise)
-    }
+  //     CENTER           VERTICES            EDGES
+  LRB: [ 'L', 'R', 'B',   'Ll', 'Rr', 'Bb',   'LR', 'RB', 'BL' ],
+  BUL: [ 'B', 'U', 'L',   'Bb', 'Uu', 'Ll',   'BU', 'UL', 'LB' ],
+  ULR: [ 'U', 'L', 'R',   'Uu', 'Ll', 'Rr',   'UL', 'LR', 'RU' ],
+  RBU: [ 'R', 'B', 'U',   'Rr', 'Bb', 'Uu',   'RB', 'BU', 'UR' ],
+};
+const faces = [ 'LRB', 'BUL', 'ULR', 'RBU' ];
+const colors = [ 'yellow', 'blue', 'green', 'purple' ];
+const moves = [ 'U', 'u', 'L', 'l', 'R', 'r', 'B', 'b' ];
+
+let nextMoves = [...moves];
+export function solve(pyramid) {
+  const fromLlColor = pyramid.getFromColor('r', true, 'LRB', 'Rr')
+  if (pyramid.colors['LRB']['R'] === fromLlColor) {
+    // Should we do a r move?
   }
+  // Let's try a random move instead!
+  const randomMove = Math.floor(Math.random() * nextMoves.length);
+  const section = nextMoves.splice(randomMove, 1)[0];
+  if (nextMoves.length === 0) {
+    nextMoves = [...moves];
+  }
+  const clockwise = Math.random() > 0.5;
+  pyramid.doMove(section, clockwise)
+}
+
+// Or solve it manually!
+// Press L, B, R, U (and shift for l, b, r, u)
+// Or the more ergonomic H, J, K, M (same as L, B, R, U)
+
+// Auto-rotation is distracting? Disable it at Scene.vue
+// And play with the colors at Pyramid.vue!
