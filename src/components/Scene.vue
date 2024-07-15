@@ -22,15 +22,7 @@ onMounted(() => {
 	}, interval);
 });
 
-const bloomParams = reactive({
-	threshold: 2,
-	smoothing: 0.5,
-	intensity: 4,
-	blendFunction: BlendFunction.ADD,
-	kernelSize: KernelSize.VERY_SMALL,
-	resolution: 256,
-	mipmapBlur: true,
-});
+const bloomParams = reactive({});
 </script>
 
 <template>
@@ -46,8 +38,8 @@ const bloomParams = reactive({
 		<Pyramid />
 	</Suspense>
 	<Suspense>
-		<EffectComposer :depth-buffer="true" v-bind="bloomParams">
-			<Bloom />
+		<EffectComposer>
+			<Bloom :depth-buffer="true" v-bind="bloomParams" />
 		</EffectComposer>
 	</Suspense>
 	<TresDirectionalLight :position="[0, 2, 4]" :intensity="1" cast-shadow />

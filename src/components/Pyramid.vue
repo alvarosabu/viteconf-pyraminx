@@ -1,6 +1,8 @@
 <script setup lang="ts">
+// Powered by TresJS! Learn more at https://tresjs.org
+
 import type { Ref } from 'vue';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useTres } from '@tresjs/core';
 import type { Group, Material } from 'three';
 import { Color } from 'three';
@@ -24,7 +26,7 @@ function setupMaterial(material: Material) {
 			break;
 	}
 	material.emissiveIntensity = emissiveIntensity;
-	material.opacity = 1;
+	material.opacity = 0.98;
 	material.transparent = true;
 }
 
@@ -38,7 +40,16 @@ const {
 	tetrahedrons,
 	octahedrons,
 	pyramid,
+	solved,
 } = await usePyramid(pyramidRef as Ref<Group>, scene, setupMaterial);
+
+watch(solved, (newVal) => {
+	pyramidRef.value?.children.forEach((child) => {
+		if (child.name.includes('octahedron')) {
+			child.visible = !newVal;
+		}
+	});
+});
 
 onMounted(() => {
 	// Do a quick scramble of the pyramid

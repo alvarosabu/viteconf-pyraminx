@@ -7,7 +7,7 @@ import { ref, watch, toRaw } from 'vue';
 export type Face = 'LRB' | 'BUL' | 'ULR' | 'RBU';
 
 export async function usePyramid(
-	pyraminxRef: Ref<Group | null>,
+	pyramidRef: Ref<Group | null>,
 	scene: Ref<Scene>,
 	setupMaterial: (material: any) => void
 ) {
@@ -270,9 +270,10 @@ export async function usePyramid(
 				}
 			}
 		}
+		solved.value = isSolved();
 	}
 
-	// Feature: Pyraminx rotation logic
+	// Feature: Pyramid rotation logic
 	const EDGE_LENGTH = 1;
 	const DEEP = Math.sqrt(3) / 2;
 	const HEIGHT = Math.sqrt(2 / 3) * EDGE_LENGTH;
@@ -284,6 +285,9 @@ export async function usePyramid(
 			position: obj.position.map((d, i) => d - pyramidDefinitionCenter[i]),
 		}));
 	}
+
+	const solved = ref(false);
+
 	const tetrahedrons = ref(
 		centerObjects([
 			// Base
@@ -352,34 +356,34 @@ export async function usePyramid(
 		])
 	);
 
-	const octahedrons = ref(
-		centerObjects([
-			{
-				position: [0, 0, 0],
-				data: {
-					groups: ['L'],
-				},
+	const originalOctahedrons = centerObjects([
+		{
+			position: [0, 0, 0],
+			data: {
+				groups: ['L'],
 			},
-			{
-				position: [EDGE_LENGTH, 0, 0],
-				data: {
-					groups: ['R'],
-				},
+		},
+		{
+			position: [EDGE_LENGTH, 0, 0],
+			data: {
+				groups: ['R'],
 			},
-			{
-				position: [EDGE_LENGTH / 2, 0, -DEEP],
-				data: {
-					groups: ['B'],
-				},
+		},
+		{
+			position: [EDGE_LENGTH / 2, 0, -DEEP],
+			data: {
+				groups: ['B'],
 			},
-			{
-				position: [EDGE_LENGTH / 2, HEIGHT, -0.2887],
-				data: {
-					groups: ['U'],
-				},
+		},
+		{
+			position: [EDGE_LENGTH / 2, HEIGHT, -0.2887],
+			data: {
+				groups: ['U'],
 			},
-		])
-	);
+		},
+	]);
+
+	const octahedrons = ref(originalOctahedrons);
 
 	const groupUpdates = {
 		L: {
@@ -463,7 +467,7 @@ export async function usePyramid(
 
 		objects.forEach((object) => {
 			object.position.sub(centroid);
-			pyraminxRef?.value?.remove(object);
+			pyramidRef?.value?.remove(object);
 			temporaryGroup.add(toRaw(object));
 		});
 
@@ -494,7 +498,7 @@ export async function usePyramid(
 				objects.forEach((object) => {
 					object.applyMatrix4(matrix);
 					temporaryGroup.remove(object);
-					pyraminxRef?.value?.add(object);
+					pyramidRef?.value?.add(object);
 					object.userData.groups = updateGroups(
 						object.userData.groups,
 						section,
@@ -540,7 +544,7 @@ export async function usePyramid(
 
 	const moveQueue = [];
 
-	function doMove(section: string, clockwise = true, duration = 750) {
+	function doMove(section: string, clockwise = true, duration = undefined) {
 		moveQueue.push({ section, clockwise, duration });
 		if (isMoving.value) {
 			return;
@@ -553,7 +557,7 @@ export async function usePyramid(
 		if (gettingReadyTimeout) {
 			return;
 		}
-		const ready = !!pyraminxRef?.value?.children?.[0].userData?.groups;
+		const ready = !!pyramidRef?.value?.children?.[0].userData?.groups;
 		if (ready) {
 			applyMove(moveQueue.shift());
 		} else {
@@ -576,7 +580,7 @@ export async function usePyramid(
 		duration: number;
 	}) {
 		const angle = move.clockwise ? (-2 * Math.PI) / 3 : (2 * Math.PI) / 3;
-		const objects = pyraminxRef?.value?.children.filter((child) =>
+		const objects = pyramidRef?.value?.children.filter((child) =>
 			child.userData?.groups?.some((group) => move.section.includes(group))
 		);
 		if (objects?.length) {
@@ -584,10 +588,19 @@ export async function usePyramid(
 				objects,
 				rotationAxisMap[move.section],
 				angle,
-				move.duration,
+				move.duration ?? Math.max(200, 750 / (moveQueue.length + 1)),
 				move.section
 			);
 		}
+	}
+
+	function isSolved(): boolean {
+		for (const face of Object.values(currentColors)) {
+			if (new Set(Object.values(face)).size > 1) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	return {
@@ -596,6 +609,8 @@ export async function usePyramid(
 
 		tetrahedrons,
 		octahedrons,
+
+		solved,
 
 		pyramid: {
 			getFromFacePosition,
