@@ -6,9 +6,9 @@ body {
   height: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 #app {
-  width: 100%;
+  width: min(100%, 512px);
   aspect-ratio : 1 / 1;
-  background-color: #000;
 }
