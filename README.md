@@ -8,7 +8,7 @@
 
 # Viteconf Pyraminx
 
-> Colaboration between [Stackblitz](https://stackblitz.com/) and [Tres.js](https://tresjs.org) for the upcoming [Viteconf 2024](https://viteconf.org/)
+> Collaboration between [StackBlitz](https://stackblitz.com/) and [Tres.js](https://tresjs.org) for [Viteconf 2024](https://viteconf.org/)
 
 Are you ready to solve the puzzle? △ 😎
 
@@ -92,4 +92,4 @@ pnpm build
 
 ## License
 
-MIT © [Stacblitz](https://stackblitz.com/) and [Tres.js](https://tresjs.org). Check the [LICENSE](./LICENSE) file for more information.
+MIT © [StackBlitz](https://stackblitz.com/) and [Tres.js](https://tresjs.org). Check the [LICENSE](./LICENSE) file for more information.
