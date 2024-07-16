@@ -14,7 +14,7 @@ const state = reactive({
 </script>
 
 <template>
-	<TresCanvas v-bind="state" window-size>
+	<TresCanvas v-bind="state">
 		<Scene />
 	</TresCanvas>
 </template>
