@@ -1,34 +1,78 @@
-![repo-banner](https://github.com/Tresjs/playground/raw/main/public/github-banner.png)
+![repo-banner](.github/viteconf-banner-2024.png)
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@tresjs/core"><img src="https://img.shields.io/npm/v/@tresjs/core/latest.svg?label=core&color=%2382DBCA" alt="core"></a>
-   <a href="https://www.npmjs.com/package/@tresjs/cientos"><img src="https://img.shields.io/npm/v/@tresjs/cientos/latest.svg?label=cientos&color=%23f19b00" alt="cientos"></a>
   <a href="https://www.npmjs.com/package/three"><img src="https://img.shields.io/npm/v/three/latest.svg?label=%20&logo=threedotjs&color=f4f4f4&logoColor=black" alt="core"></a>
-    <a href="https://www.npmjs.com/package/vite"><img src="https://img.shields.io/npm/v/vite/latest.svg?label=%20&logo=vite&color=AE58FF&logoColor=FFB310" alt="core"></a>
-  <a href="https://discord.gg/UCr96AQmWn"><img src="https://img.shields.io/badge/chat-discord-purple?style=flat&logo=discord" alt="discord chat"></a>
+  <a href="https://viteconf.org/"><img src="https://img.shields.io/badge/Get%20free%20ticket-8A2BE2?style=flat&logo=vite" alt="Get free ticket Viteconf"></a>
 </p>
 
-# TresJS 🚀 Starter
+# Viteconf Pyraminx
 
-> Quick start repo for [Tres.js](https://tresjs.org) projects
+> Colaboration between [Stackblitz](https://stackblitz.com/) and [Tres.js](https://tresjs.org) for the upcoming [Viteconf 2024](https://viteconf.org/)
 
-## Features
+Are you ready to solve the puzzle? △ 😎
 
-- [Tres.js](https://tresjs.org) and latest [Three.js](https://threejs.org)
-- `@tresjs/cientos` package pre-installed 📦
-- `@tresjs/leches` GUI controls for debuging 🍰
-- Shader support (glsl) with [`vite-plugin-glsl`](https://github.com/UstymUkhman/vite-plugin-glsl) 🎨
+## Steps
 
-## Usage
+1. Go to [Viteconf Landing](https://viteconf.org/)
+2. Below the 3D Pyraminx, click on the "Code!" button.
+3. Check the instructions on the `solve.js` file.
+4. You can check the 3D components on `Pyramind.vue` and `Scene.vue` file.
+5. Have fun and good luck!
 
-```bash
-npx degit tresjs/starter my-tres-project
+
+## Solve the puzzle
+
+```javascript
+/* Can you do better than a random solver?
+
+pyramid.
+  colors -> { face: { position: Color }}
+  getColor(face, position) -> Color
+  getFromColor(section, cw, face, position) -> Color
+  getFromFacePosition(section, cw, face, position) -> [face, position]
+  doMove(section, cw)
+
+Or solve it manually!
+Press L, B, R, U (and shift for l, b, r, u)
+Or the more ergonomic WASD (same as LBRU)
+
+Auto-rotation is distracting? Disable it at Scene.vue
+And play with the colors at Pyramid.vue!
+*/
+const positions = {
+  //     CENTER          VERTICES           EDGES
+  LRB: [ 'L', 'R', 'B',  'Ll', 'Rr', 'Bb',  'LR', 'RB', 'BL' ],
+  BUL: [ 'B', 'U', 'L',  'Bb', 'Uu', 'Ll',  'BU', 'UL', 'LB' ],
+  ULR: [ 'U', 'L', 'R',  'Uu', 'Ll', 'Rr',  'UL', 'LR', 'RU' ],
+  RBU: [ 'R', 'B', 'U',  'Rr', 'Bb', 'Uu',  'RB', 'BU', 'UR' ],
+};
+const faces = [ 'LRB', 'BUL', 'ULR', 'RBU' ];
+const colors = [ 'yellow', 'blue', 'green', 'purple' ];
+const moves = [ 'U', 'u', 'L', 'l', 'R', 'r', 'B', 'b' ];
+
+let nextMoves = [...moves];
+export function solve(pyramid) {
+  const fromLlColor = pyramid.getFromColor('r', true, 'LRB', 'Rr')
+  if (pyramid.colors['LRB']['R'] === fromLlColor) {
+    // Should we do a r move?
+  }
+  // Let's try a random move instead!
+  const randomMove = Math.floor(Math.random() * nextMoves.length);
+  const section = nextMoves.splice(randomMove, 1)[0];
+  if (nextMoves.length === 0) {
+    nextMoves = [...moves];
+  }
+  const clockwise = Math.random() > 0.5;
+  pyramid.doMove(section, clockwise)
+}
 ```
+
+
 
 ## Install
 
 ```bash
-cd my-tres-project
 pnpm install
 ```
 
@@ -43,3 +87,7 @@ pnpm dev
 ```bash
 pnpm build
 ```
+
+## License
+
+MIT © [Stacblitz](https://stackblitz.com/) and [Tres.js](https://tresjs.org). Check the [LICENSE](./LICENSE) file for more information.
