@@ -12,6 +12,8 @@
 
 Are you ready to solve the puzzle? △ 😎
 
+![Viteconf Pyraminx](.github/viteconf-pyraminx.png)
+
 ## Steps
 
 1. Go to [Viteconf Landing](https://viteconf.org/)
