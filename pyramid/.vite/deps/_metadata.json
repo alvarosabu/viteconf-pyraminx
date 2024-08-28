@@ -1,0 +1,76 @@
+{
+  "hash": "d6178d36",
+  "configHash": "f75b45c5",
+  "lockfileHash": "59ff604b",
+  "browserHash": "f7b11bdc",
+  "optimized": {
+    "@tresjs/cientos": {
+      "src": "../../node_modules/@tresjs/cientos/dist/trescientos.js",
+      "file": "@tresjs_cientos.js",
+      "fileHash": "374dfbc1",
+      "needsInterop": false
+    },
+    "@tresjs/core": {
+      "src": "../../node_modules/@tresjs/core/dist/tres.js",
+      "file": "@tresjs_core.js",
+      "fileHash": "fb4fe595",
+      "needsInterop": false
+    },
+    "@tresjs/post-processing": {
+      "src": "../../node_modules/@tresjs/post-processing/dist/tres-postprocessing.js",
+      "file": "@tresjs_post-processing.js",
+      "fileHash": "e009bf44",
+      "needsInterop": false
+    },
+    "@vueuse/core": {
+      "src": "../../node_modules/@vueuse/core/index.mjs",
+      "file": "@vueuse_core.js",
+      "fileHash": "af43e4a0",
+      "needsInterop": false
+    },
+    "postprocessing": {
+      "src": "../../node_modules/postprocessing/build/index.js",
+      "file": "postprocessing.js",
+      "fileHash": "0999da34",
+      "needsInterop": false
+    },
+    "three": {
+      "src": "../../node_modules/three/build/three.module.js",
+      "file": "three.js",
+      "fileHash": "e89f4713",
+      "needsInterop": false
+    },
+    "three-stdlib": {
+      "src": "../../node_modules/three-stdlib/index.js",
+      "file": "three-stdlib.js",
+      "fileHash": "305ebb9c",
+      "needsInterop": false
+    },
+    "vue": {
+      "src": "../../node_modules/vue/dist/vue.runtime.esm-bundler.js",
+      "file": "vue.js",
+      "fileHash": "18b77b8d",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-RFEAB4KQ": {
+      "file": "chunk-RFEAB4KQ.js"
+    },
+    "chunk-BXZRPRSO": {
+      "file": "chunk-BXZRPRSO.js"
+    },
+    "chunk-MXSAXFKJ": {
+      "file": "chunk-MXSAXFKJ.js"
+    },
+    "chunk-L4HIV4YJ": {
+      "file": "chunk-L4HIV4YJ.js"
+    },
+    "chunk-XPLT6QMO": {
+      "file": "chunk-XPLT6QMO.js"
+    },
+    "chunk-PZ5AY32C": {
+      "file": "chunk-PZ5AY32C.js"
+    }
+  }
+}

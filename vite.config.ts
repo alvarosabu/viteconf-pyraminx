@@ -9,4 +9,10 @@ export default defineConfig({
       ...templateCompilerOptions,
     }),
   ],
+  server: {
+    headers: {
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+      'Cross-Origin-Opener-Policy': 'same-origin',
+    },
+  },
 })

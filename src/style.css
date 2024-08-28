@@ -3,12 +3,45 @@ body {
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 100%;
+  height: 2000px;
   display: flex;
-  align-items: center;
   justify-content: center;
 }
 #app {
-  width: min(100%, 512px);
-  aspect-ratio : 1 / 1;
+  width: min(100%, 1200px);
+}
+
+
+body,
+button {
+  color: white;
+  font-weight: 400;
+  font-family: sans-serif;
+  border: none;
+}
+
+* {
+	scrollbar-color: #3c424f #0a0d0f;
+}
+
+::-webkit-scrollbar {
+	width: 12px;
+}
+
+::-webkit-scrollbar:horizontal {
+	height: 12px;
+}
+
+::-webkit-scrollbar-track {
+	background: #06090b;
+	border-radius: 1px;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #3c424f;
+	border-radius: 1px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: #777;
 }

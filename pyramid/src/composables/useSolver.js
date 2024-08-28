@@ -1,5 +1,7 @@
 import { solve } from '../solve.js'
 
+// Custom HMR to avoid reloading when the solve.js is changed
+
 let _solve = solve
 let _autoSolve
 

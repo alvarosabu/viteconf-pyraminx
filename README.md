@@ -81,14 +81,13 @@ pnpm install
 ## Run
 
 ```bash
+pnpm prepare-pyramid
 pnpm dev
 ```
 
-## Build
+## WebContainer Loading Optimizations
 
-```bash
-pnpm build
-```
+Instead of loading the source code into the WebContainer, and then installing the dependencies, the game uses [an optimization that the Svelte team developed](https://github.com/sveltejs/learn.svelte.dev/blob/main/scripts/create-common-bundle/index.js) while building the [SvelteKit Tutorial](https://learn.svelte.dev/tutorial/introducing-sveltekit). The `prepare-pyramid` command generates a zip file with the Pyramid source code and the needed dependencies already installed. We load this zip into the webcontainer and unzip, avoiding the need to call `npm install`. The zip file also includes the `.vite` cache directory with the pre-bundled dependencies, so when we skip the optimization step on each run and the `npm run dev` command directly runs a warm start for the app (the _metadata.json hash needs to be tweaked for this to work to match the one that is generated inside the WC). This isn't needed in general when working with WebContainers API. You can glob the app folder and load their contents to mount them into the WebContainer instance, and it was done as an exploration of what was possible. Read the [WebContainers docs](https://webcontainers.io/guides/working-with-the-file-system#working-with-the-file-system) for more information.
 
 ## License
 

@@ -1,0 +1,28 @@
+{
+  "name": "@tresjs/starter",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Quick starter template for TresJS",
+  "author": "Alvaro Saburido <hola@alvarosaburido.dev> (https://github.com/alvarosabu/)",
+  "license": "MIT",
+  "scripts": {
+		"dev": "./node_modules/vite/bin/vite.js dev --open",
+		"build": "./node_modules/vite/bin/vite.js build",
+		"preview": "./node_modules/vite/bin/vite.js preview"
+  },
+  "dependencies": {
+    "@tresjs/cientos": "^3.9.0",
+    "@tresjs/core": "4.0.2",
+    "@tresjs/post-processing": "1.0.0-next.0",
+    "postprocessing": "^6.35.4",
+    "three": "^0.165.0",
+    "vue": "^3.4.27"
+  },
+  "devDependencies": {
+    "@types/three": "^0.165.0",
+    "@vitejs/plugin-vue": "^5.0.5",
+    "vite": "^5.2.12",
+    "esbuild-wasm": "^0.21.3",
+    "@rollup/wasm-node": "^4.18.0"
+  }
+}

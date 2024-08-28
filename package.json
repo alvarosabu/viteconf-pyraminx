@@ -20,7 +20,8 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "prepare-pyramid": "node wc/zipModules.mjs",
+		"build": "pnpm run prepare-pyramid && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
@@ -29,13 +30,20 @@
     "@tresjs/cientos": "^3.9.0",
     "@tresjs/core": "4.0.2",
     "@tresjs/post-processing": "1.0.0-next.0",
+    "@webcontainer/api": "^1.1.9",
+    "adm-zip": "^0.5.10",
+    "codemirror": "^5.65.16",
     "postprocessing": "^6.35.4",
     "three": "^0.165.0",
-    "vue": "^3.4.27"
+    "vue": "^3.4.27",
+    "xterm": "^5.3.0",
+		"xterm-addon-fit": "^0.8.0",
+		"xterm-addon-web-links": "^0.9.0"
   },
   "devDependencies": {
     "@types/three": "^0.165.0",
     "@vitejs/plugin-vue": "^5.0.5",
+    "tiny-glob": "^0.2.9",
     "vite": "^5.2.12"
   }
 }
